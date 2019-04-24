@@ -9,14 +9,14 @@ import org.mockito.Mock;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class UserDbServiceTest {
+class UserDbServiceTest {
     @Mock
     UserDbService userDbService;
 
     private User user;
 
     @BeforeEach
-    public void init() {
+    void init() {
         userDbService = mock(UserDbService.class);
         user = new User();
         user.setId(1);
@@ -24,12 +24,12 @@ public class UserDbServiceTest {
     }
 
     @Test
-    public void validAddTest() {
+    void validAddTest() {
         assertDoesNotThrow(() -> userDbService.add(user));
     }
 
     @Test
-    public void addThrowsWhenUserIsNull() {
+    void addThrowsWhenUserIsNull() {
         userDbService.add(null);
         doThrow(NullPointerException.class).when(userDbService).add(null);
 
@@ -38,7 +38,7 @@ public class UserDbServiceTest {
     }
 
     @Test
-    public void validGetTest() {
+    void validGetTest() {
         when(userDbService.get(1)).thenReturn(user);
 
         User result = userDbService.get(1);
@@ -47,7 +47,7 @@ public class UserDbServiceTest {
     }
 
     @Test
-    public void getThrowsWhenIdIsZero() {
+    void getThrowsWhenIdIsZero() {
         when(userDbService.get(0)).thenThrow(new IllegalArgumentException());
 
         assertThrows(IllegalArgumentException.class,
@@ -55,7 +55,7 @@ public class UserDbServiceTest {
     }
 
     @Test
-    public void getThrowsWhenIdIsNegative() {
+    void getThrowsWhenIdIsNegative() {
         when(userDbService.get(-1)).thenThrow(new IllegalArgumentException());
 
         assertThrows(IllegalArgumentException.class,
@@ -63,19 +63,19 @@ public class UserDbServiceTest {
     }
 
     @Test
-    public void getReturnsNullWhenUserIsNotFound() {
+    void getReturnsNullWhenUserIsNotFound() {
         when(userDbService.get(2)).thenReturn(null);
 
         assertNull(userDbService.get(2));
     }
 
     @Test
-    public void validUpdateTest() {
+    void validUpdateTest() {
         assertDoesNotThrow(() -> userDbService.update(user));
     }
 
     @Test
-    public void updateThrowsWhenUserIsNull() {
+    void updateThrowsWhenUserIsNull() {
         userDbService.update(null);
         doThrow(NullPointerException.class).when(userDbService).update(null);
 
@@ -84,12 +84,12 @@ public class UserDbServiceTest {
     }
 
     @Test
-    public void validDeleteTest() {
+    void validDeleteTest() {
         assertDoesNotThrow(() -> userDbService.delete(1));
     }
 
     @Test
-    public void deleteThrowsWhenIdIsZero() {
+    void deleteThrowsWhenIdIsZero() {
         userDbService.delete(0);
         doThrow(IllegalArgumentException.class).when(userDbService).delete(0);
 
@@ -98,7 +98,7 @@ public class UserDbServiceTest {
     }
 
     @Test
-    public void deleteThrowsWhenIdIsNegative() {
+    void deleteThrowsWhenIdIsNegative() {
         userDbService.delete(-1);
         doThrow(IllegalArgumentException.class).when(userDbService).delete(-1);
 
@@ -107,7 +107,7 @@ public class UserDbServiceTest {
     }
 
     @Test
-    public void deleteThrowsWhenUserIsNotFound() {
+    void deleteThrowsWhenUserIsNotFound() {
         userDbService.delete(2);
         doThrow(NullPointerException.class).when(userDbService).delete(2);
 
@@ -116,7 +116,7 @@ public class UserDbServiceTest {
     }
 
     @AfterEach
-    public void cleanup() {
+    void cleanup() {
         userDbService = null;
     }
 }

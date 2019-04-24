@@ -10,14 +10,14 @@ import org.mockito.Mock;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class HotelDbServiceTest {
+class HotelDbServiceTest {
     @Mock
     HotelDbService hotelDbService;
 
     private Hotel hotel;
 
     @BeforeEach
-    public void init() {
+    void init() {
         hotelDbService = mock(HotelDbService.class);
         hotel = new Hotel();
         hotel.setId(1);
@@ -27,12 +27,12 @@ public class HotelDbServiceTest {
     }
 
     @Test
-    public void validAddTest() {
+    void validAddTest() {
         assertDoesNotThrow(() -> hotelDbService.add(hotel));
     }
 
     @Test
-    public void addThrowsWhenHotelIsNull() {
+    void addThrowsWhenHotelIsNull() {
         hotelDbService.add(null);
         doThrow(NullPointerException.class).when(hotelDbService).add(null);
 
@@ -41,7 +41,7 @@ public class HotelDbServiceTest {
     }
 
     @Test
-    public void validGetTest() {
+    void validGetTest() {
         when(hotelDbService.get(1)).thenReturn(hotel);
 
         Hotel result = hotelDbService.get(1);
@@ -50,7 +50,7 @@ public class HotelDbServiceTest {
     }
 
     @Test
-    public void getThrowsWhenIdIsZero() {
+    void getThrowsWhenIdIsZero() {
         when(hotelDbService.get(0)).thenThrow(new IllegalArgumentException());
 
         assertThrows(IllegalArgumentException.class,
@@ -58,7 +58,7 @@ public class HotelDbServiceTest {
     }
 
     @Test
-    public void getThrowsWhenIdIsNegative() {
+    void getThrowsWhenIdIsNegative() {
         when(hotelDbService.get(-1)).thenThrow(new IllegalArgumentException());
 
         assertThrows(IllegalArgumentException.class,
@@ -66,19 +66,19 @@ public class HotelDbServiceTest {
     }
 
     @Test
-    public void getReturnsNullWhenHotelIsNotFound() {
+    void getReturnsNullWhenHotelIsNotFound() {
         when(hotelDbService.get(2)).thenReturn(null);
 
         assertNull(hotelDbService.get(2));
     }
 
     @Test
-    public void validUpdateTest() {
+    void validUpdateTest() {
         assertDoesNotThrow(() -> hotelDbService.update(hotel));
     }
 
     @Test
-    public void updateThrowsWhenHotelIsNull() {
+    void updateThrowsWhenHotelIsNull() {
         hotelDbService.update(null);
         doThrow(NullPointerException.class).when(hotelDbService).update(null);
 
@@ -87,12 +87,12 @@ public class HotelDbServiceTest {
     }
 
     @Test
-    public void validDeleteTest() {
+    void validDeleteTest() {
         assertDoesNotThrow(() -> hotelDbService.delete(1));
     }
 
     @Test
-    public void deleteThrowsWhenIdIsZero() {
+    void deleteThrowsWhenIdIsZero() {
         hotelDbService.delete(0);
         doThrow(IllegalArgumentException.class).when(hotelDbService).delete(0);
 
@@ -101,7 +101,7 @@ public class HotelDbServiceTest {
     }
 
     @Test
-    public void deleteThrowsWhenIdIsNegative() {
+    void deleteThrowsWhenIdIsNegative() {
         hotelDbService.delete(-1);
         doThrow(IllegalArgumentException.class).when(hotelDbService).delete(-1);
 
@@ -110,7 +110,7 @@ public class HotelDbServiceTest {
     }
 
     @Test
-    public void deleteThrowsWhenHotelIsNotFound() {
+    void deleteThrowsWhenHotelIsNotFound() {
         hotelDbService.delete(2);
         doThrow(NullPointerException.class).when(hotelDbService).delete(2);
 
@@ -119,7 +119,8 @@ public class HotelDbServiceTest {
     }
 
     @AfterEach
-    public void cleanup() {
+    void cleanup() {
         hotelDbService = null;
+        hotel = null;
     }
 }
