@@ -118,5 +118,6 @@ class UserDbServiceTest {
     @AfterEach
     void cleanup() {
         userDbService = null;
+        user = null;
     }
 }

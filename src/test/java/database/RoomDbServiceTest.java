@@ -39,7 +39,7 @@ class RoomDbServiceTest {
     }
 
     @Test
-    void addThrowsWhenHotelIsNull() {
+    void addThrowsWhenRoomIsNull() {
         roomDbService.add(null);
         doThrow(NullPointerException.class).when(roomDbService).add(null);
 
@@ -73,7 +73,7 @@ class RoomDbServiceTest {
     }
 
     @Test
-    void getReturnsNullWhenHotelIsNotFound() {
+    void getReturnsNullWhenRoomIsNotFound() {
         when(roomDbService.get(2)).thenReturn(null);
 
         assertNull(roomDbService.get(2));
@@ -85,7 +85,7 @@ class RoomDbServiceTest {
     }
 
     @Test
-    void updateThrowsWhenHotelIsNull() {
+    void updateThrowsWhenRoomIsNull() {
         roomDbService.update(null);
         doThrow(NullPointerException.class).when(roomDbService).update(null);
 
@@ -117,7 +117,7 @@ class RoomDbServiceTest {
     }
 
     @Test
-    void deleteThrowsWhenHotelIsNotFound() {
+    void deleteThrowsWhenRoomIsNotFound() {
         roomDbService.delete(2);
         doThrow(NullPointerException.class).when(roomDbService).delete(2);
 
