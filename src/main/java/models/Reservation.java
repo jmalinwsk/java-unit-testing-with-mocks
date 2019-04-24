@@ -12,6 +12,14 @@ public class Reservation {
 
     public Reservation() {}
 
+    public Reservation(Integer id, DateTime startDate, DateTime endDate, User user, Room room) {
+        this.id = id;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.user = user;
+        this.room = room;
+    }
+
     public Reservation(DateTime startDate, DateTime endDate, User user, Room room) {
         this.startDate = startDate;
         this.endDate = endDate;

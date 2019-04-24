@@ -8,6 +8,13 @@ public class Room {
 
     public Room() {}
 
+    public Room(Integer id, Hotel hotel, Integer numberOfRoom, Integer amountOfPeople) {
+        this.id = id;
+        this.hotel = hotel;
+        this.numberOfRoom = numberOfRoom;
+        this.amountOfPeople = amountOfPeople;
+    }
+
     public Room(Hotel hotel, Integer numberOfRoom, Integer amountOfPeople) {
         this.hotel = hotel;
         this.numberOfRoom = numberOfRoom;

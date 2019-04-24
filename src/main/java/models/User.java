@@ -6,6 +6,11 @@ public class User {
 
     public User() {}
 
+    public User(Integer id, String email) {
+        this.id = id;
+        this.email = email;
+    }
+
     public User(String email) {
         this.email = email;
     }
