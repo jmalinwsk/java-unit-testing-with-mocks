@@ -16,7 +16,7 @@ class HotelServiceTest {
     private Hotel hotel;
 
     @BeforeEach
-    public void init() {
+    void init() {
         hotelService = mock(HotelService.class);
         hotel = new Hotel("Sample name", new LocalTime(8), new LocalTime(22));
         hotel.setId(1);
@@ -133,7 +133,7 @@ class HotelServiceTest {
     }
 
     @AfterEach
-    public void cleanup() {
+    void cleanup() {
         hotelService = null;
         hotel = null;
     }
