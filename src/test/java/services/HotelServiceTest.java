@@ -18,8 +18,7 @@ class HotelServiceTest {
     @BeforeEach
     void init() {
         hotelService = mock(HotelService.class);
-        hotel = new Hotel("Sample name", new LocalTime(8), new LocalTime(22));
-        hotel.setId(1);
+        hotel = new Hotel();
     }
 
     @Test
