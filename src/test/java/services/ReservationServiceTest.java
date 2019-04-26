@@ -1,8 +1,12 @@
 package services;
 
 import models.Reservation;
+import models.User;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -13,6 +17,7 @@ class ReservationServiceTest {
     private ReservationService reservationService;
 
     private Reservation reservation;
+    private User user;
 
     @BeforeEach
     void init() {
@@ -127,6 +132,31 @@ class ReservationServiceTest {
 
         assertThrows(NullPointerException.class,
                 () -> reservationService.delete(2));
+    }
+
+    @Test
+    void getEmptyReservationsOfUser() {
+        when(reservationService.getReservationsOfUser(user)).thenReturn(new ArrayList<>());
+
+        assertEquals(new ArrayList<Reservation>(), reservationService.getReservationsOfUser(user));
+    }
+
+    @Test
+    void getReservationsOfUser() {
+        List<Reservation> list = new ArrayList<>();
+        list.add(new Reservation());
+        when(reservationService.getReservationsOfUser(user)).thenReturn(list);
+
+        assertEquals(list, reservationService.getReservationsOfUser(user));
+    }
+
+    @Test
+    void getReservationsOfUserThrowsWhenUserIsNull() {
+        when(reservationService.getReservationsOfUser(null))
+                .thenThrow(new NullPointerException());
+
+        assertThrows(NullPointerException.class,
+                () -> reservationService.getReservationsOfUser(null));
     }
 
     @AfterEach
