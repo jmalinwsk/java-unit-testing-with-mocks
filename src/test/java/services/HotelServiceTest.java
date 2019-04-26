@@ -1,28 +1,40 @@
 package services;
 
 import models.Hotel;
+import org.joda.time.LocalTime;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
+
+import javax.sql.DataSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.doThrow;
 
 class HotelServiceTest {
-    @Mock
-    private IHotelService hotelService;
-    
+    private HotelServiceImpl hotelService;
+    private DataSource dataSource;
     private Hotel hotel;
 
     @BeforeEach
     void init() {
-        hotelService = mock(IHotelService.class);
-        hotel = new Hotel();
+
+        hotelService = new HotelServiceImpl();
+        hotel = new Hotel(1, "Sample name",
+                new LocalTime(6), new LocalTime((22)));
     }
 
     @Test
     void validAddTest() {
         assertDoesNotThrow(() -> hotelService.add(hotel));
+        Hotel result = hotelService.get(1);
+
+        assertAll(
+                () -> assertEquals(1, result.getId()),
+                () -> assertEquals("Sample name", result.getName()),
+                () -> assertEquals(new LocalTime(6), result.getOpenHour()),
+                () -> assertEquals(new LocalTime(22), result.getCloseHour())
+        );
     }
 
     @Test

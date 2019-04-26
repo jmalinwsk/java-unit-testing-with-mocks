@@ -9,6 +9,8 @@ import java.sql.*;
 public class HotelServiceImpl implements IHotelService {
     private DataSource dataSource;
 
+    public HotelServiceImpl() {}
+
     public HotelServiceImpl(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -16,7 +18,12 @@ public class HotelServiceImpl implements IHotelService {
     @Override
     public void add(Hotel hotel) {
         try {
-            if (hotel == null)
+            if(hotel == null ||
+                    hotel.getName() == null ||
+                    hotel.getOpenHour() == null ||
+                    hotel.getCloseHour() == null ||
+                    hotel.getName().equals("") ||
+                    !hotel.getOpenHour().isBefore(hotel.getCloseHour()))
                 throw new NullPointerException();
 
             Connection connection = dataSource.getConnection();
@@ -57,7 +64,13 @@ public class HotelServiceImpl implements IHotelService {
     @Override
     public void update(Hotel hotel) {
         try {
-            if (hotel == null)
+            if(hotel == null ||
+                    hotel.getName() == null ||
+                    hotel.getOpenHour() == null ||
+                    hotel.getCloseHour() == null ||
+                    hotel.getName().equals("") ||
+                    !hotel.getOpenHour().isBefore(hotel.getCloseHour()))
+
                 throw new NullPointerException();
 
             Connection connection = dataSource.getConnection();
