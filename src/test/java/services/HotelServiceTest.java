@@ -1,7 +1,6 @@
 package services;
 
 import models.Hotel;
-import org.joda.time.LocalTime;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 
@@ -11,13 +10,13 @@ import static org.mockito.Mockito.doThrow;
 
 class HotelServiceTest {
     @Mock
-    private HotelService hotelService;
+    private IHotelService hotelService;
     
     private Hotel hotel;
 
     @BeforeEach
     void init() {
-        hotelService = mock(HotelService.class);
+        hotelService = mock(IHotelService.class);
         hotel = new Hotel();
     }
 

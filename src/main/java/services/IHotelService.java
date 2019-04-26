@@ -4,7 +4,7 @@ import models.Hotel;
 
 import java.sql.SQLException;
 
-public interface HotelService {
+public interface IHotelService {
     void add(Hotel hotel);
     Hotel get(int id);
     void update(Hotel hotel);

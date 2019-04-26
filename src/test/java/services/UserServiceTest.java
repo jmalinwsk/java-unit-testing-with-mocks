@@ -10,13 +10,13 @@ import static org.mockito.Mockito.doThrow;
 
 class UserServiceTest {
     @Mock
-    private UserService userService;
+    private IUserService userService;
 
     private User user;
 
     @BeforeEach
     void init() {
-        userService = mock(UserService.class);
+        userService = mock(IUserService.class);
     }
 
     @Test

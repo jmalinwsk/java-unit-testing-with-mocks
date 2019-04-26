@@ -10,13 +10,13 @@ import static org.mockito.Mockito.doThrow;
 
 class RoomServiceTest {
     @Mock
-    private RoomService roomService;
+    private IRoomService roomService;
 
     private Room room;
 
     @BeforeEach
     void init() {
-        roomService = mock(RoomService.class);
+        roomService = mock(IRoomService.class);
     }
 
     @Test

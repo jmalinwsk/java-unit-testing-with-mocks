@@ -14,14 +14,14 @@ import static org.mockito.Mockito.doThrow;
 
 class ReservationServiceTest {
     @Mock
-    private ReservationService reservationService;
+    private IReservationService reservationService;
 
     private Reservation reservation;
     private User user;
 
     @BeforeEach
     void init() {
-        reservationService = mock(ReservationService.class);
+        reservationService = mock(IReservationService.class);
     }
 
     @Test

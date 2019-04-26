@@ -5,7 +5,7 @@ import models.User;
 
 import java.util.List;
 
-public interface ReservationService {
+public interface IReservationService {
     void add(Reservation reservation);
     Reservation get(int id);
     void update(Reservation reservation);

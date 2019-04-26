@@ -4,7 +4,7 @@ import models.Room;
 
 import java.util.List;
 
-public interface RoomService {
+public interface IRoomService {
     void add(Room room);
     Room get(int id);
     void update(Room room);
