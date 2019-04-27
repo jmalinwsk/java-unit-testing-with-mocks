@@ -1,33 +1,31 @@
 package services;
 
+import database.IDatabaseContext;
 import models.Hotel;
 import org.joda.time.LocalTime;
 import org.junit.jupiter.api.*;
-import org.mockito.Mock;
-
-import javax.sql.DataSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.doThrow;
 
 class HotelServiceTest {
-    private HotelServiceImpl hotelService;
-    private DataSource dataSource;
+    private IDatabaseContext databaseContext;
+
     private Hotel hotel;
 
     @BeforeEach
     void init() {
-
-        hotelService = new HotelServiceImpl();
+        databaseContext = mock(IDatabaseContext.class);
         hotel = new Hotel(1, "Sample name",
                 new LocalTime(6), new LocalTime((22)));
     }
 
     @Test
     void validAddTest() {
-        assertDoesNotThrow(() -> hotelService.add(hotel));
-        Hotel result = hotelService.get(1);
+        assertDoesNotThrow(() -> databaseContext.add(hotel));
+        when(databaseContext.get(hotel)).thenReturn(hotel);
+        Hotel result = databaseContext.get(hotel);
 
         assertAll(
                 () -> assertEquals(1, result.getId()),
@@ -39,112 +37,112 @@ class HotelServiceTest {
 
     @Test
     void addThrowsWhenHotelDoesntPassValidation() {
-        hotelService.add(hotel);
-        doThrow(IllegalArgumentException.class).when(hotelService).add(hotel);
+        databaseContext.add(hotel);
+        doThrow(IllegalArgumentException.class).when(databaseContext).add(hotel);
 
         assertThrows(IllegalArgumentException.class,
-                () -> hotelService.add(hotel));
+                () -> databaseContext.add(hotel));
     }
 
     @Test
     void addThrowsWhenHotelIsNull() {
-        hotelService.add(null);
-        doThrow(NullPointerException.class).when(hotelService).add(null);
+        databaseContext.add(null);
+        doThrow(NullPointerException.class).when(databaseContext).add(null);
 
         assertThrows(NullPointerException.class,
-                () -> hotelService.add(null));
+                () -> databaseContext.add(null));
     }
 
     @Test
     void validGetTest() {
-        when(hotelService.get(1)).thenReturn(hotel);
+        when(databaseContext.get(hotel)).thenReturn(hotel);
 
-        Hotel result = hotelService.get(1);
+        Hotel result = databaseContext.get(hotel);
 
         assertEquals(hotel, result);
     }
 
     @Test
     void getThrowsWhenIdIsZero() {
-        when(hotelService.get(0)).thenThrow(new IllegalArgumentException());
+        when(databaseContext.get(0)).thenThrow(new IllegalArgumentException());
 
         assertThrows(IllegalArgumentException.class,
-                () -> hotelService.get(0));
+                () -> databaseContext.get(0));
     }
 
     @Test
     void getThrowsWhenIdIsNegative() {
-        when(hotelService.get(-1)).thenThrow(new IllegalArgumentException());
+        when(databaseContext.get(-1)).thenThrow(new IllegalArgumentException());
 
         assertThrows(IllegalArgumentException.class,
-                () -> hotelService.get(-1));
+                () -> databaseContext.get(-1));
     }
 
     @Test
     void getReturnsNullWhenHotelIsNotFound() {
-        when(hotelService.get(2)).thenReturn(null);
+        when(databaseContext.get(2)).thenReturn(null);
 
-        assertNull(hotelService.get(2));
+        assertNull(databaseContext.get(2));
     }
 
     @Test
     void validUpdateTest() {
-        assertDoesNotThrow(() -> hotelService.update(hotel));
+        assertDoesNotThrow(() -> databaseContext.update(hotel));
     }
 
     @Test
     void updateThrowsWhenHotelDoesntPassValidation() {
-        hotelService.update(hotel);
-        doThrow(IllegalArgumentException.class).when(hotelService).update(hotel);
+        databaseContext.update(hotel);
+        doThrow(IllegalArgumentException.class).when(databaseContext).update(hotel);
 
         assertThrows(IllegalArgumentException.class,
-                () -> hotelService.update(hotel));
+                () -> databaseContext.update(hotel));
     }
 
     @Test
     void updateThrowsWhenHotelIsNull() {
-        hotelService.update(null);
-        doThrow(NullPointerException.class).when(hotelService).update(null);
+        databaseContext.update(null);
+        doThrow(NullPointerException.class).when(databaseContext).update(null);
 
         assertThrows(NullPointerException.class,
-                () -> hotelService.update(null));
+                () -> databaseContext.update(null));
     }
 
     @Test
     void validDeleteTest() {
-        assertDoesNotThrow(() -> hotelService.delete(1));
+        assertDoesNotThrow(() -> databaseContext.delete(1));
     }
 
     @Test
     void deleteThrowsWhenIdIsZero() {
-        hotelService.delete(0);
-        doThrow(IllegalArgumentException.class).when(hotelService).delete(0);
+        databaseContext.delete(0);
+        doThrow(IllegalArgumentException.class).when(databaseContext).delete(0);
 
         assertThrows(IllegalArgumentException.class,
-                () -> hotelService.delete(0));
+                () -> databaseContext.delete(0));
     }
 
     @Test
     void deleteThrowsWhenIdIsNegative() {
-        hotelService.delete(-1);
-        doThrow(IllegalArgumentException.class).when(hotelService).delete(-1);
+        databaseContext.delete(-1);
+        doThrow(IllegalArgumentException.class).when(databaseContext).delete(-1);
 
         assertThrows(IllegalArgumentException.class,
-                () -> hotelService.delete(-1));
+                () -> databaseContext.delete(-1));
     }
 
     @Test
     void deleteThrowsWhenHotelIsNotFound() {
-        hotelService.delete(2);
-        doThrow(NullPointerException.class).when(hotelService).delete(2);
+        databaseContext.delete(2);
+        doThrow(NullPointerException.class).when(databaseContext).delete(2);
 
         assertThrows(NullPointerException.class,
-                () -> hotelService.delete(2));
+                () -> databaseContext.delete(2));
     }
 
     @AfterEach
     void cleanup() {
-        hotelService = null;
+        databaseContext = null;
         hotel = null;
     }
 }
