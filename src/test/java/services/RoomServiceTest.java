@@ -4,6 +4,8 @@ import models.Room;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 
+import java.util.HashMap;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.doThrow;
@@ -129,7 +131,21 @@ class RoomServiceTest {
                 () -> roomService.delete(2));
     }
 
+    @Test
+    void getFreeRoomsTest() {
+        HashMap<Integer, Room> rooms = new HashMap<>();
+        rooms.put(1, new Room());
+        when(roomService.getFreeRooms()).thenReturn(rooms);
 
+        assertEquals(rooms, roomService.getFreeRooms());
+    }
+
+    @Test
+    void getFreeRoomsWhenThereAreNoRooms() {
+        when(roomService.getFreeRooms()).thenReturn(null);
+
+        assertNull(roomService.getFreeRooms());
+    }
 
     @AfterEach
     void cleanup() {

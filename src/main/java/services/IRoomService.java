@@ -2,6 +2,7 @@ package services;
 
 import models.Room;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface IRoomService {
@@ -9,5 +10,5 @@ public interface IRoomService {
     Room get(int id);
     void update(Room room);
     void delete(int id);
-    List<Room> getFreeRooms();
+    HashMap<Integer, Room> getFreeRooms();
 }
