@@ -13,14 +13,20 @@ public class HotelService implements IHotelService {
         this.databaseContext = databaseContext;
     }
 
-    @Override
-    public void add(Hotel hotel) throws ValidationException {
+    public boolean hotelValidation(Hotel hotel) {
         if(hotel != null &&
                 hotel.getName() != null &&
                 hotel.getOpenHour() != null &&
                 hotel.getCloseHour() != null &&
                 !hotel.getName().equals("") &&
-                hotel.getOpenHour().isBefore(hotel.getCloseHour())) {
+                hotel.getOpenHour().isBefore(hotel.getCloseHour()))
+            return true;
+        else return false;
+    }
+
+    @Override
+    public void add(Hotel hotel) throws ValidationException {
+        if(hotelValidation(hotel)) {
             Integer id = databaseContext.getNextHotelId();
             hotel.setId(id);
 
@@ -45,12 +51,7 @@ public class HotelService implements IHotelService {
 
     @Override
     public void update(Hotel hotel) throws ValidationException {
-        if(hotel != null &&
-                hotel.getName() != null &&
-                hotel.getOpenHour() != null &&
-                hotel.getCloseHour() != null &&
-                !hotel.getName().equals("") &&
-                hotel.getOpenHour().isBefore(hotel.getCloseHour())) {
+        if(hotelValidation(hotel)) {
             databaseContext.update(hotel);
         }
         else throw new ValidationException(
