@@ -1,11 +1,13 @@
 package services;
 
+import exceptions.ValidationException;
 import models.Reservation;
 import models.User;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +32,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void addThrowsWhenReservationDoesntPassValidation() {
+    void addThrowsWhenReservationDoesntPassValidation() throws ValidationException {
         reservationService.add(reservation);
         doThrow(IllegalArgumentException.class).when(reservationService).add(reservation);
 
@@ -39,7 +41,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void addThrowsWhenRoomIsNull() {
+    void addThrowsWhenRoomIsNull() throws ValidationException {
         reservationService.add(null);
         doThrow(NullPointerException.class).when(reservationService).add(null);
 
@@ -85,7 +87,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void updateThrowsWhenReservationDoesntPassValidation() {
+    void updateThrowsWhenReservationDoesntPassValidation() throws ValidationException {
         reservationService.update(reservation);
         doThrow(IllegalArgumentException.class).when(reservationService).update(reservation);
 
@@ -94,7 +96,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void updateThrowsWhenReservationIsNull() {
+    void updateThrowsWhenReservationIsNull() throws ValidationException {
         reservationService.update(null);
         doThrow(NullPointerException.class).when(reservationService).update(null);
 
@@ -136,15 +138,15 @@ class ReservationServiceTest {
 
     @Test
     void getEmptyReservationsOfUser() {
-        when(reservationService.getReservationsOfUser(user)).thenReturn(new ArrayList<>());
+        when(reservationService.getReservationsOfUser(user)).thenReturn(new HashMap<>());
 
-        assertEquals(new ArrayList<Reservation>(), reservationService.getReservationsOfUser(user));
+        assertEquals(new HashMap<>(), reservationService.getReservationsOfUser(user));
     }
 
     @Test
     void getReservationsOfUser() {
-        List<Reservation> list = new ArrayList<>();
-        list.add(new Reservation());
+        HashMap<Integer, Reservation> list = new HashMap<>();
+        list.put(1, new Reservation());
         when(reservationService.getReservationsOfUser(user)).thenReturn(list);
 
         assertEquals(list, reservationService.getReservationsOfUser(user));

@@ -24,8 +24,8 @@ class HotelServiceTest {
     @Test
     void validAddTest() {
         assertDoesNotThrow(() -> databaseContext.add(hotel));
-        when(databaseContext.get(hotel)).thenReturn(hotel);
-        Hotel result = databaseContext.get(hotel);
+        when(databaseContext.getHotel(hotel.getId())).thenReturn(hotel);
+        Hotel result = databaseContext.getHotel(hotel.getId());
 
         assertAll(
                 () -> assertEquals(1, result.getId()),
@@ -55,34 +55,34 @@ class HotelServiceTest {
 
     @Test
     void validGetTest() {
-        when(databaseContext.get(hotel)).thenReturn(hotel);
+        when(databaseContext.getHotel(hotel.getId())).thenReturn(hotel);
 
-        Hotel result = databaseContext.get(hotel);
+        Hotel result = databaseContext.getHotel(hotel.getId());
 
         assertEquals(hotel, result);
     }
 
     @Test
     void getThrowsWhenIdIsZero() {
-        when(databaseContext.get(0)).thenThrow(new IllegalArgumentException());
+        when(databaseContext.getHotel(0)).thenThrow(new IllegalArgumentException());
 
         assertThrows(IllegalArgumentException.class,
-                () -> databaseContext.get(0));
+                () -> databaseContext.getHotel(0));
     }
 
     @Test
     void getThrowsWhenIdIsNegative() {
-        when(databaseContext.get(-1)).thenThrow(new IllegalArgumentException());
+        when(databaseContext.getHotel(-1)).thenThrow(new IllegalArgumentException());
 
         assertThrows(IllegalArgumentException.class,
-                () -> databaseContext.get(-1));
+                () -> databaseContext.getHotel(-1));
     }
 
     @Test
     void getReturnsNullWhenHotelIsNotFound() {
-        when(databaseContext.get(2)).thenReturn(null);
+        when(databaseContext.getHotel(2)).thenReturn(null);
 
-        assertNull(databaseContext.get(2));
+        assertNull(databaseContext.getHotel(2));
     }
 
     @Test

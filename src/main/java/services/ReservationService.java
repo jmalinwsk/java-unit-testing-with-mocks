@@ -1,6 +1,7 @@
 package services;
 
 import database.IDatabaseContext;
+import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
 import models.Reservation;
 import models.User;
@@ -17,16 +18,14 @@ public class ReservationService implements IReservationService {
     }
 
     private boolean reservationValidation(Reservation reservation) {
-        if (reservation != null &&
+        return reservation != null &&
                 reservation.getRoom() != null &&
                 reservation.getUser() != null &&
-                reservation.getStartDate().isBefore(reservation.getEndDate()))
-            return true;
-        else return false;
+                reservation.getStartDate().isBefore(reservation.getEndDate());
     }
 
     @Override
-    public String add(Reservation reservation) throws ValidationException {
+    public String add(Reservation reservation) throws ValidationException, ElementNotFoundException {
         if (reservationValidation(reservation)) {
             if (databaseContext.getUsers().containsValue(reservation.getUser()) &&
                     databaseContext.getRooms().containsValue(reservation.getRoom())) {
@@ -70,16 +69,16 @@ public class ReservationService implements IReservationService {
                         return identificator;
                     }
                 } else throw new DateTimeException("Start/end date has minutes!");
-            } else throw new NullPointerException();
+            } else throw new ElementNotFoundException("User/room associated with reservation is not found.");
         } else throw new ValidationException("Given reservation didn't pass validation!");
     }
 
     @Override
-    public Reservation get(int id) {
+    public Reservation get(int id) throws ElementNotFoundException {
         Reservation reservation = databaseContext.getReservation(id);
         if (reservation != null) {
             return reservation;
-        } else throw new NullPointerException();
+        } else throw new ElementNotFoundException("Hotel with id" + id + " is not found.");
     }
 
     @Override
@@ -88,7 +87,7 @@ public class ReservationService implements IReservationService {
     }
 
     @Override
-    public void update(Reservation reservation) throws ValidationException {
+    public void update(Reservation reservation) throws ValidationException, ElementNotFoundException {
         if (reservationValidation(reservation)) {
             if (databaseContext.getUsers().containsValue(reservation.getUser()) &&
                     databaseContext.getRooms().containsValue(reservation.getRoom())) {
@@ -108,18 +107,20 @@ public class ReservationService implements IReservationService {
                             databaseContext.update(reservation);
                         } else throw new DateTimeException("Selected room in this date and time is reserved " +
                                 "by other person!");
-                    } else throw new NullPointerException();
+                    } else throw new ElementNotFoundException(
+                            "Reservation with id" + reservation.getId()  + " is not found.");
                 } else throw new DateTimeException("Start/end date has minutes!");
-            } else throw new NullPointerException();
+            } else throw new ElementNotFoundException("User/room associated with reservation is not found.");
         } else throw new ValidationException("Given reservation didn't pass validation!");
     }
 
     @Override
-    public void delete(int id) {
+    public void delete(int id) throws ElementNotFoundException {
         Reservation reservation = databaseContext.getReservation(id);
         if (reservation != null) {
             databaseContext.delete(reservation);
-        } else throw new NullPointerException();
+        } else throw new ElementNotFoundException(
+                "Reservation with id" + reservation.getId()  + " is not found.");
     }
 
     @Override

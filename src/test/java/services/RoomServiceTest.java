@@ -1,5 +1,6 @@
 package services;
 
+import exceptions.ValidationException;
 import models.Room;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
@@ -27,7 +28,7 @@ class RoomServiceTest {
     }
 
     @Test
-    void addThrowsWhenRoomDoesntPassValidation() {
+    void addThrowsWhenRoomDoesntPassValidation() throws ValidationException {
         roomService.add(room);
         doThrow(IllegalArgumentException.class).when(roomService).add(room);
 
@@ -36,7 +37,7 @@ class RoomServiceTest {
     }
 
     @Test
-    void addThrowsWhenRoomIsNull() {
+    void addThrowsWhenRoomIsNull() throws ValidationException {
         roomService.add(null);
         doThrow(NullPointerException.class).when(roomService).add(null);
 
@@ -82,7 +83,7 @@ class RoomServiceTest {
     }
 
     @Test
-    void updateThrowsWhenRoomDoesntPassValidation() {
+    void updateThrowsWhenRoomDoesntPassValidation() throws ValidationException {
         roomService.update(room);
         doThrow(IllegalArgumentException.class).when(roomService).update(room);
 
@@ -91,7 +92,7 @@ class RoomServiceTest {
     }
 
     @Test
-    void updateThrowsWhenRoomIsNull() {
+    void updateThrowsWhenRoomIsNull() throws ValidationException {
         roomService.update(null);
         doThrow(NullPointerException.class).when(roomService).update(null);
 

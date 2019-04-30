@@ -1,6 +1,7 @@
 package services;
 
 import database.IDatabaseContext;
+import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
 import models.User;
 
@@ -43,11 +44,12 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User get(int id) {
+    public User get(int id) throws ElementNotFoundException {
         User user = databaseContext.getUser(id);
         if(user != null) {
             return user;
-        } else throw new NullPointerException();
+        } else throw new ElementNotFoundException(
+                "User with id" + id  + " is not found.");
     }
 
     @Override
@@ -65,10 +67,11 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void delete(int id) {
+    public void delete(int id) throws ElementNotFoundException {
         User user = databaseContext.getUser(id);
         if(user != null) {
             databaseContext.delete(user);
-        } else throw new NullPointerException();
+        } else throw new ElementNotFoundException(
+                "User with id" + id  + " is not found.");
     }
 }

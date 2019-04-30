@@ -1,6 +1,7 @@
 package services;
 
 import database.IDatabaseContext;
+import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
 import models.Room;
 
@@ -22,7 +23,7 @@ public class RoomService implements IRoomService {
     }
 
     @Override
-    public void add(Room room) throws ValidationException {
+    public void add(Room room) throws ValidationException, ElementNotFoundException {
         if(databaseContext.getHotels().containsValue(room.getHotel())) {
             if (roomValidation(room)) {
                 Integer id = databaseContext.getNextUserId();
@@ -31,15 +32,17 @@ public class RoomService implements IRoomService {
                 databaseContext.add(room);
             } else throw new ValidationException(
                     "Given room didn't pass validation!");
-        } else throw new NullPointerException();
+        } else throw new ElementNotFoundException(
+                "Room with id" + room.getId()  + " is not found.");
     }
 
     @Override
-    public Room get(int id) {
+    public Room get(int id) throws ElementNotFoundException {
         Room room = databaseContext.getRoom(id);
         if(room != null) {
             return room;
-        } else throw new NullPointerException();
+        } else throw new ElementNotFoundException(
+                "Room with id" + id  + " is not found.");
     }
 
     @Override
@@ -57,11 +60,12 @@ public class RoomService implements IRoomService {
     }
 
     @Override
-    public void delete(int id) {
+    public void delete(int id) throws ElementNotFoundException {
         Room room = databaseContext.getRoom(id);
         if(room != null) {
             databaseContext.delete(room);
-        } else throw new NullPointerException();
+        } else throw new ElementNotFoundException(
+                "Room with id" + id  + " is not found.");
     }
 
     @Override

@@ -1,6 +1,7 @@
 package services;
 
 import database.IDatabaseContext;
+import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
 import models.Hotel;
 
@@ -14,14 +15,12 @@ public class HotelService implements IHotelService {
     }
 
     private boolean hotelValidation(Hotel hotel) {
-        if(hotel != null &&
+        return hotel != null &&
                 hotel.getName() != null &&
                 hotel.getOpenHour() != null &&
                 hotel.getCloseHour() != null &&
                 !hotel.getName().equals("") &&
-                hotel.getOpenHour().isBefore(hotel.getCloseHour()))
-            return true;
-        else return false;
+                hotel.getOpenHour().isBefore(hotel.getCloseHour());
     }
 
     @Override
@@ -37,11 +36,11 @@ public class HotelService implements IHotelService {
     }
 
     @Override
-    public Hotel get(int id) {
+    public Hotel get(int id) throws ElementNotFoundException {
         Hotel hotel = databaseContext.getHotel(id);
         if(hotel != null) {
             return hotel;
-        } else throw new NullPointerException();
+        } else throw new ElementNotFoundException("Hotel with id" + id + " is not found.");
     }
 
     @Override
@@ -50,19 +49,22 @@ public class HotelService implements IHotelService {
     }
 
     @Override
-    public void update(Hotel hotel) throws ValidationException {
+    public void update(Hotel hotel) throws ValidationException, ElementNotFoundException {
         if(hotelValidation(hotel)) {
-            databaseContext.update(hotel);
+            Hotel checkIfHotelExist = databaseContext.getHotel(hotel.getId());
+            if(checkIfHotelExist != null) {
+                databaseContext.update(hotel);
+            } else throw new ElementNotFoundException(hotel.getName() + " is not found.");
         }
         else throw new ValidationException(
                 "Given hotel didn't pass validation!");
     }
 
     @Override
-    public void delete(int id) {
+    public void delete(int id) throws ElementNotFoundException {
         Hotel hotel = databaseContext.getHotel(id);
         if(hotel != null) {
             databaseContext.delete(hotel);
-        } else throw new NullPointerException();
+        } else throw new ElementNotFoundException(hotel.getName() + " is not found.");
     }
 }

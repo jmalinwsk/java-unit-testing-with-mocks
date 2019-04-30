@@ -1,5 +1,6 @@
 package services;
 
+import exceptions.ValidationException;
 import models.User;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
@@ -25,7 +26,7 @@ class UserServiceTest {
     }
 
     @Test
-    void addThrowsWhenUserDoesntPassValidation() {
+    void addThrowsWhenUserDoesntPassValidation() throws ValidationException {
         userService.add(user);
         doThrow(IllegalArgumentException.class).when(userService).add(user);
 
@@ -34,7 +35,7 @@ class UserServiceTest {
     }
 
     @Test
-    void addThrowsWhenUserIsNull() {
+    void addThrowsWhenUserIsNull() throws ValidationException {
         userService.add(null);
         doThrow(NullPointerException.class).when(userService).add(null);
 
@@ -80,7 +81,7 @@ class UserServiceTest {
     }
 
     @Test
-    void updateThrowsWhenUserDoesntPassValidation() {
+    void updateThrowsWhenUserDoesntPassValidation() throws ValidationException {
         userService.update(user);
         doThrow(IllegalArgumentException.class).when(userService).update(user);
 
@@ -89,7 +90,7 @@ class UserServiceTest {
     }
 
     @Test
-    void updateThrowsWhenUserIsNull() {
+    void updateThrowsWhenUserIsNull() throws ValidationException {
         userService.update(null);
         doThrow(NullPointerException.class).when(userService).update(null);
 
