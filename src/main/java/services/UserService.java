@@ -22,7 +22,7 @@ public class UserService implements IUserService {
         this.databaseContext = databaseContext;
     }
 
-    public boolean userValidation(User user) {
+    private boolean userValidation(User user) {
         if(user != null &&
                 user.getEmail() != null &&
                 user.getEmail().matches(emailPattern))

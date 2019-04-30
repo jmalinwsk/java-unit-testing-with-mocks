@@ -1,13 +1,13 @@
 package services;
 
+import exceptions.ValidationException;
 import models.Reservation;
 import models.User;
 
 import java.util.HashMap;
-import java.util.List;
 
 public interface IReservationService {
-    void add(Reservation reservation);
+    String add(Reservation reservation) throws ValidationException;
     Reservation get(int id);
     HashMap<Integer, Reservation> get();
     void update(Reservation reservation);
