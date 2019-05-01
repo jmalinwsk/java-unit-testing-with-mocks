@@ -1,31 +1,32 @@
 package services;
 
-import database.IDatabaseContext;
+import exceptions.ElementNotFoundException;
+import exceptions.ValidationException;
+import mocks.DatabaseContext;
 import models.Hotel;
 import org.joda.time.LocalTime;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.doThrow;
 
 class HotelServiceTest {
-    private IDatabaseContext databaseContext;
+    private DatabaseContext databaseContext;
+    private HotelService hotelService;
 
     private Hotel hotel;
 
     @BeforeEach
     void init() {
-        databaseContext = mock(IDatabaseContext.class);
+        databaseContext = new DatabaseContext();
+        hotelService = new HotelService(databaseContext);
         hotel = new Hotel(1, "Sample name",
                 new LocalTime(6), new LocalTime((22)));
     }
 
     @Test
-    void validAddTest() {
-        assertDoesNotThrow(() -> databaseContext.add(hotel));
-        when(databaseContext.getHotel(hotel.getId())).thenReturn(hotel);
-        Hotel result = databaseContext.getHotel(hotel.getId());
+    void validAddTest() throws ValidationException, ElementNotFoundException {
+        hotelService.add(hotel);
+        Hotel result = hotelService.get(hotel.getId());
 
         assertAll(
                 () -> assertEquals(1, result.getId()),
@@ -37,107 +38,97 @@ class HotelServiceTest {
 
     @Test
     void addThrowsWhenHotelDoesntPassValidation() {
-        databaseContext.add(hotel);
-        doThrow(IllegalArgumentException.class).when(databaseContext).add(hotel);
+        hotel.setOpenHour(null);
 
-        assertThrows(IllegalArgumentException.class,
-                () -> databaseContext.add(hotel));
+        assertThrows(ValidationException.class,
+                () -> hotelService.add(hotel));
     }
 
     @Test
     void addThrowsWhenHotelIsNull() {
-        databaseContext.add(null);
-        doThrow(NullPointerException.class).when(databaseContext).add(null);
-
-        assertThrows(NullPointerException.class,
-                () -> databaseContext.add(null));
+        assertThrows(ValidationException.class,
+                () -> hotelService.add(null));
     }
 
     @Test
-    void validGetTest() {
-        when(databaseContext.getHotel(hotel.getId())).thenReturn(hotel);
+    void validGetTest() throws ElementNotFoundException, ValidationException {
+        hotelService.add(hotel);
 
-        Hotel result = databaseContext.getHotel(hotel.getId());
-
-        assertEquals(hotel, result);
+        assertEquals(hotel, hotelService.get(hotel.getId()));
     }
 
     @Test
     void getThrowsWhenIdIsZero() {
-        when(databaseContext.getHotel(0)).thenThrow(new IllegalArgumentException());
-
-        assertThrows(IllegalArgumentException.class,
-                () -> databaseContext.getHotel(0));
+        assertThrows(ElementNotFoundException.class,
+                () -> hotelService.get(0));
     }
 
     @Test
     void getThrowsWhenIdIsNegative() {
-        when(databaseContext.getHotel(-1)).thenThrow(new IllegalArgumentException());
-
-        assertThrows(IllegalArgumentException.class,
-                () -> databaseContext.getHotel(-1));
+        assertThrows(ElementNotFoundException.class,
+                () -> hotelService.get(-1));
     }
 
     @Test
     void getReturnsNullWhenHotelIsNotFound() {
-        when(databaseContext.getHotel(2)).thenReturn(null);
-
-        assertNull(databaseContext.getHotel(2));
+        assertThrows(ElementNotFoundException.class,
+                () -> hotelService.get(2));
     }
 
     @Test
-    void validUpdateTest() {
-        assertDoesNotThrow(() -> databaseContext.update(hotel));
+    void validUpdateTest() throws ValidationException {
+        hotelService.add(hotel);
+        String name = hotel.getName();
+        hotel.setName("New hotel name");
+
+        assertAll(
+                () -> assertDoesNotThrow(() -> hotelService.update(hotel)),
+                () -> assertNotEquals(name, hotelService.get(hotel.getId()).getName())
+        );
     }
 
     @Test
-    void updateThrowsWhenHotelDoesntPassValidation() {
-        databaseContext.update(hotel);
-        doThrow(IllegalArgumentException.class).when(databaseContext).update(hotel);
+    void updateThrowsWhenHotelDoesntPassValidation() throws ValidationException {
+        hotelService.add(hotel);
+        hotel.setName(null);
 
-        assertThrows(IllegalArgumentException.class,
-                () -> databaseContext.update(hotel));
+        assertThrows(ValidationException.class,
+                () -> hotelService.update(hotel));
     }
 
     @Test
     void updateThrowsWhenHotelIsNull() {
-        databaseContext.update(null);
-        doThrow(NullPointerException.class).when(databaseContext).update(null);
-
-        assertThrows(NullPointerException.class,
-                () -> databaseContext.update(null));
+        assertThrows(ValidationException.class,
+                () -> hotelService.update(null));
     }
 
     @Test
-    void validDeleteTest() {
-        assertDoesNotThrow(() -> databaseContext.delete(1));
+    void validDeleteTest() throws ValidationException {
+        hotelService.add(hotel);
+
+        assertAll(
+                () -> assertDoesNotThrow(() -> hotelService.delete(hotel.getId())),
+                () -> assertThrows(ElementNotFoundException.class,
+                        () -> hotelService.get(hotel.getId()))
+        );
     }
 
     @Test
     void deleteThrowsWhenIdIsZero() {
-        databaseContext.delete(0);
-        doThrow(IllegalArgumentException.class).when(databaseContext).delete(0);
-
-        assertThrows(IllegalArgumentException.class,
-                () -> databaseContext.delete(0));
+        assertThrows(ElementNotFoundException.class,
+                () -> hotelService.get(0));
     }
 
     @Test
     void deleteThrowsWhenIdIsNegative() {
-        databaseContext.delete(-1);
-        doThrow(IllegalArgumentException.class).when(databaseContext).delete(-1);
-
-        assertThrows(IllegalArgumentException.class,
-                () -> databaseContext.delete(-1));
+        assertThrows(ElementNotFoundException.class,
+                () -> hotelService.get(-1));
     }
 
     @Test
     void deleteThrowsWhenHotelIsNotFound() {
-        databaseContext.delete(2);
-        doThrow(NullPointerException.class).when(databaseContext).delete(2);
-
-        assertThrows(NullPointerException.class,
-                () -> databaseContext.delete(2));
+        assertThrows(ElementNotFoundException.class,
+                () -> hotelService.get(2));
     }
 
     @AfterEach
