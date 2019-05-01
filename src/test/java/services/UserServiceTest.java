@@ -1,10 +1,14 @@
 package services;
 
+import database.IDatabaseContext;
 import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
 import models.User;
 import org.junit.jupiter.api.*;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -12,127 +16,129 @@ import static org.mockito.Mockito.doThrow;
 
 class UserServiceTest {
     @Mock
-    private IUserService userService;
+    private IDatabaseContext databaseContext;
+    @InjectMocks
+    private UserService userService;
 
     private User user;
 
     @BeforeEach
     void init() {
-        userService = mock(IUserService.class);
+        databaseContext = mock(IDatabaseContext.class);
+        userService = new UserService(databaseContext);
+
+        user = new User(1, "sample@email.com");
     }
 
     @Test
     void validAddTest() {
+        when(databaseContext.getNextUserId()).thenReturn(user.getId());
+
         assertDoesNotThrow(() -> userService.add(user));
     }
 
     @Test
-    void addThrowsWhenUserDoesntPassValidation() throws ValidationException {
-        userService.add(user);
-        doThrow(IllegalArgumentException.class).when(userService).add(user);
+    void addThrowsWhenUserDoesntPassValidation() {
+        user.setEmail("sample email@email.com");
 
-        assertThrows(IllegalArgumentException.class,
-                () -> userService.add(user));
+        assertAll(
+                () -> assertThrows(ValidationException.class,
+                        () -> userService.add(user))
+        );
     }
 
     @Test
-    void addThrowsWhenUserIsNull() throws ValidationException {
-        userService.add(null);
-        doThrow(NullPointerException.class).when(userService).add(null);
-
-        assertThrows(NullPointerException.class,
+    void addThrowsWhenUserIsNull() {
+        assertThrows(ValidationException.class,
                 () -> userService.add(null));
     }
 
     @Test
     void validGetTest() throws ElementNotFoundException {
-        when(userService.get(1)).thenReturn(user);
+        when(databaseContext.getUser(1)).thenReturn(user);
 
-        User result = userService.get(1);
-
-        assertEquals(user, result);
+        assertEquals(user, userService.get(1));
     }
 
     @Test
-    void getThrowsWhenIdIsZero() throws ElementNotFoundException {
-        when(userService.get(0)).thenThrow(new IllegalArgumentException());
+    void getThrowsWhenIdIsZero() {
+        when(databaseContext.getUser(0)).thenReturn(null);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(ElementNotFoundException.class,
                 () -> userService.get(0));
     }
 
     @Test
-    void getThrowsWhenIdIsNegative() throws ElementNotFoundException {
-        when(userService.get(-1)).thenThrow(new IllegalArgumentException());
+    void getThrowsWhenIdIsNegative() {
+        when(databaseContext.getUser(-1)).thenReturn(null);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(ElementNotFoundException.class,
                 () -> userService.get(-1));
     }
 
     @Test
-    void getReturnsNullWhenUserIsNotFound() throws ElementNotFoundException {
-        when(userService.get(2)).thenReturn(null);
+    void getReturnsNullWhenUserIsNotFound() {
+        when(databaseContext.getUser(2)).thenReturn(null);
 
-        assertNull(userService.get(2));
+        assertThrows(ElementNotFoundException.class,
+                () -> userService.get(2));
     }
 
     @Test
     void validUpdateTest() {
+        when(databaseContext.getUser(user.getId())).thenReturn(user);
+
         assertDoesNotThrow(() -> userService.update(user));
     }
 
     @Test
-    void updateThrowsWhenUserDoesntPassValidation() throws ValidationException, ElementNotFoundException {
-        userService.update(user);
-        doThrow(IllegalArgumentException.class).when(userService).update(user);
+    void updateThrowsWhenUserDoesntPassValidation() {
+        user.setEmail("sample email");
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(ValidationException.class,
                 () -> userService.update(user));
     }
 
     @Test
-    void updateThrowsWhenUserIsNull() throws ValidationException, ElementNotFoundException {
-        userService.update(null);
-        doThrow(NullPointerException.class).when(userService).update(null);
-
-        assertThrows(NullPointerException.class,
+    void updateThrowsWhenUserIsNull() {
+        assertThrows(ValidationException.class,
                 () -> userService.update(null));
     }
 
     @Test
     void validDeleteTest() {
-        assertDoesNotThrow(() -> userService.delete(1));
+        when(databaseContext.getUser(user.getId())).thenReturn(user);
+
+        assertDoesNotThrow(() -> userService.delete(user.getId()));
     }
 
     @Test
-    void deleteThrowsWhenIdIsZero() throws ElementNotFoundException {
-        userService.delete(0);
-        doThrow(IllegalArgumentException.class).when(userService).delete(0);
+    void deleteThrowsWhenIdIsZero() {
+        when(databaseContext.getUser(0)).thenReturn(null);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(ElementNotFoundException.class,
                 () -> userService.delete(0));
     }
 
     @Test
-    void deleteThrowsWhenIdIsNegative() throws ElementNotFoundException {
-        userService.delete(-1);
-        doThrow(IllegalArgumentException.class).when(userService).delete(-1);
+    void deleteThrowsWhenIdIsNegative() {
+        when(databaseContext.getUser(-1)).thenReturn(null);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(ElementNotFoundException.class,
                 () -> userService.delete(-1));
     }
 
     @Test
-    void deleteThrowsWhenUserIsNotFound() throws ElementNotFoundException {
-        userService.delete(2);
-        doThrow(NullPointerException.class).when(userService).delete(2);
+    void deleteThrowsWhenUserIsNotFound() {
+        when(databaseContext.getUser(2)).thenReturn(null);
 
-        assertThrows(NullPointerException.class,
+        assertThrows(ElementNotFoundException.class,
                 () -> userService.delete(2));
     }
 
     @AfterEach
     void cleanup() {
+        databaseContext = null;
         userService = null;
         user = null;
     }
