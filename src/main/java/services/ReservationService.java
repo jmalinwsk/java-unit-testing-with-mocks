@@ -119,8 +119,7 @@ public class ReservationService implements IReservationService {
         Reservation reservation = databaseContext.getReservation(id);
         if (reservation != null) {
             databaseContext.delete(reservation);
-        } else throw new ElementNotFoundException(
-                "Reservation with id" + reservation.getId()  + " is not found.");
+        } else throw new ElementNotFoundException("Reservation with id " + id  + " is not found.");
     }
 
     @Override

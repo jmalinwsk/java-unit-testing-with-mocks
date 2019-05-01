@@ -55,9 +55,7 @@ public class HotelService implements IHotelService {
             if(checkIfHotelExist != null) {
                 databaseContext.update(hotel);
             } else throw new ElementNotFoundException(hotel.getName() + " is not found.");
-        }
-        else throw new ValidationException(
-                "Given hotel didn't pass validation!");
+        } else throw new ValidationException("Given hotel didn't pass validation!");
     }
 
     @Override
