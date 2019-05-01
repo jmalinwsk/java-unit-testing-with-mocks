@@ -78,7 +78,7 @@ public class ReservationService implements IReservationService {
         Reservation reservation = databaseContext.getReservation(id);
         if (reservation != null) {
             return reservation;
-        } else throw new ElementNotFoundException("Hotel with id" + id + " is not found.");
+        } else throw new ElementNotFoundException("Hotel with id " + id + " is not found.");
     }
 
     @Override

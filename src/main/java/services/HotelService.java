@@ -40,7 +40,7 @@ public class HotelService implements IHotelService {
         Hotel hotel = databaseContext.getHotel(id);
         if(hotel != null) {
             return hotel;
-        } else throw new ElementNotFoundException("Hotel with id" + id + " is not found.");
+        } else throw new ElementNotFoundException("Hotel with id " + id + " is not found.");
     }
 
     @Override

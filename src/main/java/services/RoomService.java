@@ -15,26 +15,24 @@ public class RoomService implements IRoomService {
     }
 
     private boolean roomValidation(Room room) {
-        if(room != null &&
+        return room != null &&
                 room.getNumberOfRoom() > 0 &&
                 room.getAmountOfPeople() > 0 &&
-                room.getHotel() != null)
-            return true;
-        else return false;
+                room.getHotel() != null;
     }
 
     @Override
     public void add(Room room) throws ValidationException, ElementNotFoundException {
-        if(databaseContext.getHotels().containsValue(room.getHotel())) {
-            if (roomValidation(room)) {
+        if (roomValidation(room)) {
+            if(databaseContext.getHotels().containsValue(room.getHotel())) {
                 Integer id = databaseContext.getNextUserId();
                 room.setId(id);
 
                 databaseContext.add(room);
-            } else throw new ValidationException(
-                    "Given room didn't pass validation!");
-        } else throw new ElementNotFoundException(
-                "Room with id" + room.getId()  + " is not found.");
+            } else throw new ElementNotFoundException(
+                    "Room with id" + room.getId()  + " is not found.");
+        } else throw new ValidationException(
+                "Given room didn't pass validation!");
     }
 
     @Override
@@ -58,7 +56,7 @@ public class RoomService implements IRoomService {
             if(checkIfRoomExists != null) {
                 databaseContext.update(room);
             } else throw new ElementNotFoundException(
-                    "Room with id" + room.getId() + " is not found.");
+                    "Room with id " + room.getId() + " is not found.");
         }
         else throw new ValidationException(
                 "Given room didn't pass validation!");
@@ -70,7 +68,7 @@ public class RoomService implements IRoomService {
         if(room != null) {
             databaseContext.delete(room);
         } else throw new ElementNotFoundException(
-                "Room with id" + id  + " is not found.");
+                "Room with id " + id  + " is not found.");
     }
 
     @Override

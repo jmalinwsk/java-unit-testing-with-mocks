@@ -24,11 +24,9 @@ public class UserService implements IUserService {
     }
 
     private boolean userValidation(User user) {
-        if(user != null &&
+        return user != null &&
                 user.getEmail() != null &&
-                user.getEmail().matches(emailPattern))
-            return true;
-        else return false;
+                user.getEmail().matches(emailPattern);
     }
 
     @Override
@@ -49,7 +47,7 @@ public class UserService implements IUserService {
         if(user != null) {
             return user;
         } else throw new ElementNotFoundException(
-                "User with id" + id  + " is not found.");
+                "User with id " + id  + " is not found.");
     }
 
     @Override
@@ -64,7 +62,7 @@ public class UserService implements IUserService {
             if(checkIfUserExists != null) {
                 databaseContext.update(user);
             } else throw new ElementNotFoundException(
-                    "User with id" + user.getId() + " is not found.");
+                    "User with id " + user.getId() + " is not found.");
         }
         else throw new ValidationException(
                 "Given hotel didn't pass validation!");
@@ -76,6 +74,6 @@ public class UserService implements IUserService {
         if(user != null) {
             databaseContext.delete(user);
         } else throw new ElementNotFoundException(
-                "User with id" + id  + " is not found.");
+                "User with id " + id  + " is not found.");
     }
 }

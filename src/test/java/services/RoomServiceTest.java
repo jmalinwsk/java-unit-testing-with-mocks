@@ -38,42 +38,30 @@ class RoomServiceTest {
         when(databaseContext.getHotels()).thenReturn(
                 new HashMap<Integer, Hotel>() {{ put(1, hotel); }}
         );
-        when(databaseContext.getNextRoomId()).thenReturn(1);
+        when(databaseContext.getNextRoomId()).thenReturn(room.getId());
 
         assertDoesNotThrow(() -> roomService.add(room));
     }
 
     @Test
     void addThrowsWhenRoomDoesntPassValidation() {
-        when(databaseContext.getHotels()).thenReturn(
-                new HashMap<Integer, Hotel>() {{ put(1, hotel); }}
-        );
-        when(databaseContext.getNextRoomId()).thenReturn(1);
         room.setAmountOfPeople(-5);
 
-        assertAll(
-                () -> assertDoesNotThrow(() -> databaseContext.add(room)),
-                () -> assertThrows(ValidationException.class,
-                        () -> roomService.add(room))
-        );
+        assertThrows(ValidationException.class,
+                        () -> roomService.add(room));
     }
 
     @Test
     void addThrowsWhenRoomIsNull() {
-        when(databaseContext.getHotels()).thenReturn(
-                new HashMap<Integer, Hotel>() {{ put(1, hotel); }}
-        );
-        when(databaseContext.getNextRoomId()).thenReturn(1);
-
-        assertThrows(NullPointerException.class,
+        assertThrows(ValidationException.class,
                 () -> roomService.add(null));
     }
 
     @Test
     void validGetTest() throws ElementNotFoundException {
-        when(databaseContext.getRoom(1)).thenReturn(room);
+        when(databaseContext.getRoom(room.getId())).thenReturn(room);
 
-        Room result = roomService.get(1);
+        Room result = roomService.get(room.getId());
 
         assertEquals(room, result);
     }
@@ -104,25 +92,17 @@ class RoomServiceTest {
 
     @Test
     void validUpdateTest() {
-        when(databaseContext.getRoom(1)).thenReturn(room);
+        when(databaseContext.getRoom(room.getId())).thenReturn(room);
 
         assertDoesNotThrow(() -> roomService.update(room));
     }
 
     @Test
     void updateThrowsWhenRoomDoesntPassValidation() {
-        when(databaseContext.getHotels()).thenReturn(
-                new HashMap<Integer, Hotel>() {{ put(1, hotel); }}
-        );
-        when(databaseContext.getNextRoomId()).thenReturn(1);
-
         room.setAmountOfPeople(-5);
 
-        assertAll(
-                () -> assertDoesNotThrow(() -> databaseContext.update(room)),
-                () -> assertThrows(ValidationException.class,
-                        () -> roomService.update(room))
-        );
+        assertThrows(ValidationException.class,
+                        () -> roomService.update(room));
     }
 
     @Test
@@ -133,9 +113,9 @@ class RoomServiceTest {
 
     @Test
     void validDeleteTest() {
-        when(databaseContext.getRoom(1)).thenReturn(room);
+        when(databaseContext.getRoom(room.getId())).thenReturn(room);
 
-        assertDoesNotThrow(() -> roomService.delete(1));
+        assertDoesNotThrow(() -> roomService.delete(room.getId()));
     }
 
     @Test
