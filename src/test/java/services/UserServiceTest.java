@@ -1,5 +1,6 @@
 package services;
 
+import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
 import models.User;
 import org.junit.jupiter.api.*;
@@ -44,7 +45,7 @@ class UserServiceTest {
     }
 
     @Test
-    void validGetTest() {
+    void validGetTest() throws ElementNotFoundException {
         when(userService.get(1)).thenReturn(user);
 
         User result = userService.get(1);
@@ -53,7 +54,7 @@ class UserServiceTest {
     }
 
     @Test
-    void getThrowsWhenIdIsZero() {
+    void getThrowsWhenIdIsZero() throws ElementNotFoundException {
         when(userService.get(0)).thenThrow(new IllegalArgumentException());
 
         assertThrows(IllegalArgumentException.class,
@@ -61,7 +62,7 @@ class UserServiceTest {
     }
 
     @Test
-    void getThrowsWhenIdIsNegative() {
+    void getThrowsWhenIdIsNegative() throws ElementNotFoundException {
         when(userService.get(-1)).thenThrow(new IllegalArgumentException());
 
         assertThrows(IllegalArgumentException.class,
@@ -69,7 +70,7 @@ class UserServiceTest {
     }
 
     @Test
-    void getReturnsNullWhenUserIsNotFound() {
+    void getReturnsNullWhenUserIsNotFound() throws ElementNotFoundException {
         when(userService.get(2)).thenReturn(null);
 
         assertNull(userService.get(2));
@@ -81,7 +82,7 @@ class UserServiceTest {
     }
 
     @Test
-    void updateThrowsWhenUserDoesntPassValidation() throws ValidationException {
+    void updateThrowsWhenUserDoesntPassValidation() throws ValidationException, ElementNotFoundException {
         userService.update(user);
         doThrow(IllegalArgumentException.class).when(userService).update(user);
 
@@ -90,7 +91,7 @@ class UserServiceTest {
     }
 
     @Test
-    void updateThrowsWhenUserIsNull() throws ValidationException {
+    void updateThrowsWhenUserIsNull() throws ValidationException, ElementNotFoundException {
         userService.update(null);
         doThrow(NullPointerException.class).when(userService).update(null);
 
@@ -104,7 +105,7 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteThrowsWhenIdIsZero() {
+    void deleteThrowsWhenIdIsZero() throws ElementNotFoundException {
         userService.delete(0);
         doThrow(IllegalArgumentException.class).when(userService).delete(0);
 
@@ -113,7 +114,7 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteThrowsWhenIdIsNegative() {
+    void deleteThrowsWhenIdIsNegative() throws ElementNotFoundException {
         userService.delete(-1);
         doThrow(IllegalArgumentException.class).when(userService).delete(-1);
 
@@ -122,7 +123,7 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteThrowsWhenUserIsNotFound() {
+    void deleteThrowsWhenUserIsNotFound() throws ElementNotFoundException {
         userService.delete(2);
         doThrow(NullPointerException.class).when(userService).delete(2);
 

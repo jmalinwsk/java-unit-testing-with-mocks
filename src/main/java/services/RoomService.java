@@ -17,7 +17,8 @@ public class RoomService implements IRoomService {
     private boolean roomValidation(Room room) {
         if(room != null &&
                 room.getNumberOfRoom() > 0 &&
-                room.getAmountOfPeople() > 0)
+                room.getAmountOfPeople() > 0 &&
+                room.getHotel() != null)
             return true;
         else return false;
     }
@@ -51,9 +52,13 @@ public class RoomService implements IRoomService {
     }
 
     @Override
-    public void update(Room room) throws ValidationException {
+    public void update(Room room) throws ValidationException, ElementNotFoundException {
         if(roomValidation(room)) {
-            databaseContext.update(room);
+            Room checkIfRoomExists = databaseContext.getRoom(room.getId());
+            if(checkIfRoomExists != null) {
+                databaseContext.update(room);
+            } else throw new ElementNotFoundException(
+                    "Room with id" + room.getId() + " is not found.");
         }
         else throw new ValidationException(
                 "Given room didn't pass validation!");

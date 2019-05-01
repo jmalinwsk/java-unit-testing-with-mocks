@@ -58,9 +58,13 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void update(User user) throws ValidationException {
+    public void update(User user) throws ValidationException, ElementNotFoundException {
         if(userValidation(user)) {
-            databaseContext.update(user);
+            User checkIfUserExists = databaseContext.getUser(user.getId());
+            if(checkIfUserExists != null) {
+                databaseContext.update(user);
+            } else throw new ElementNotFoundException(
+                    "User with id" + user.getId() + " is not found.");
         }
         else throw new ValidationException(
                 "Given hotel didn't pass validation!");

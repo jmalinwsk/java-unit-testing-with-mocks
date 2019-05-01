@@ -1,5 +1,6 @@
 package services;
 
+import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
 import models.Reservation;
 import models.User;
@@ -32,7 +33,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void addThrowsWhenReservationDoesntPassValidation() throws ValidationException {
+    void addThrowsWhenReservationDoesntPassValidation() throws ValidationException, ElementNotFoundException {
         reservationService.add(reservation);
         doThrow(IllegalArgumentException.class).when(reservationService).add(reservation);
 
@@ -41,7 +42,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void addThrowsWhenRoomIsNull() throws ValidationException {
+    void addThrowsWhenRoomIsNull() throws ValidationException, ElementNotFoundException {
         reservationService.add(null);
         doThrow(NullPointerException.class).when(reservationService).add(null);
 
@@ -50,7 +51,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void validGetTest() {
+    void validGetTest() throws ElementNotFoundException {
         when(reservationService.get(1)).thenReturn(reservation);
 
         Reservation result = reservationService.get(1);
@@ -59,7 +60,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void getThrowsWhenIdIsZero() {
+    void getThrowsWhenIdIsZero() throws ElementNotFoundException {
         when(reservationService.get(0)).thenThrow(new IllegalArgumentException());
 
         assertThrows(IllegalArgumentException.class,
@@ -67,7 +68,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void getThrowsWhenIdIsNegative() {
+    void getThrowsWhenIdIsNegative() throws ElementNotFoundException {
         when(reservationService.get(-1)).thenThrow(new IllegalArgumentException());
 
         assertThrows(IllegalArgumentException.class,
@@ -75,7 +76,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void getReturnsNullWhenReservationIsNotFound() {
+    void getReturnsNullWhenReservationIsNotFound() throws ElementNotFoundException {
         when(reservationService.get(2)).thenReturn(null);
 
         assertNull(reservationService.get(2));
@@ -87,7 +88,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void updateThrowsWhenReservationDoesntPassValidation() throws ValidationException {
+    void updateThrowsWhenReservationDoesntPassValidation() throws ValidationException, ElementNotFoundException {
         reservationService.update(reservation);
         doThrow(IllegalArgumentException.class).when(reservationService).update(reservation);
 
@@ -96,7 +97,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void updateThrowsWhenReservationIsNull() throws ValidationException {
+    void updateThrowsWhenReservationIsNull() throws ValidationException, ElementNotFoundException {
         reservationService.update(null);
         doThrow(NullPointerException.class).when(reservationService).update(null);
 
@@ -110,7 +111,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void deleteThrowsWhenIdIsZero() {
+    void deleteThrowsWhenIdIsZero() throws ElementNotFoundException {
         reservationService.delete(0);
         doThrow(IllegalArgumentException.class).when(reservationService).delete(0);
 
@@ -119,7 +120,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void deleteThrowsWhenIdIsNegative() {
+    void deleteThrowsWhenIdIsNegative() throws ElementNotFoundException {
         reservationService.delete(-1);
         doThrow(IllegalArgumentException.class).when(reservationService).delete(-1);
 
@@ -128,7 +129,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void deleteThrowsWhenReservationIsNotFound() {
+    void deleteThrowsWhenReservationIsNotFound() throws ElementNotFoundException {
         reservationService.delete(2);
         doThrow(NullPointerException.class).when(reservationService).delete(2);
 

@@ -11,7 +11,7 @@ public interface IRoomService {
     void add(Room room) throws ValidationException, ElementNotFoundException;
     Room get(int id) throws ElementNotFoundException;
     HashMap<Integer, Room> get();
-    void update(Room room) throws ValidationException;
+    void update(Room room) throws ValidationException, ElementNotFoundException;
     void delete(int id) throws ElementNotFoundException;
     HashMap<Integer, Room> getFreeRooms();
 }
