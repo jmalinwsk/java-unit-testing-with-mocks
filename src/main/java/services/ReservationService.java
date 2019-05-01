@@ -29,7 +29,7 @@ public class ReservationService implements IReservationService {
         if (reservationValidation(reservation)) {
             if (databaseContext.getUsers().containsValue(reservation.getUser()) &&
                     databaseContext.getRooms().containsValue(reservation.getRoom())) {
-                if (ReservationUtils.hasMinutesInDate(reservation)) {
+                if (!ReservationUtils.hasMinutesInDate(reservation)) {
                     if (!databaseContext.getReservations().isEmpty()) {
                         boolean flag = false;
                         for (Reservation r : databaseContext.getReservations().values()) {
@@ -91,10 +91,12 @@ public class ReservationService implements IReservationService {
         if (reservationValidation(reservation)) {
             if (databaseContext.getUsers().containsValue(reservation.getUser()) &&
                     databaseContext.getRooms().containsValue(reservation.getRoom())) {
-                if (ReservationUtils.hasMinutesInDate(reservation)) {
-                    if (!databaseContext.getReservations().isEmpty()) {
+                if (!ReservationUtils.hasMinutesInDate(reservation)) {
+                    if (databaseContext.getReservations().containsValue(reservation)) {
                         boolean flag = false;
                         for (Reservation r : databaseContext.getReservations().values()) {
+                            if(r.getId().equals(reservation.getId()))
+                                continue;
                             if ((ReservationUtils.isContainedIn(reservation, r) ||
                                     ReservationUtils.isEqualTo(reservation, r) ||
                                     ReservationUtils.ifDatesHaveAnIntersect(reservation, r)) &&
