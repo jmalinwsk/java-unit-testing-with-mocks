@@ -1,9 +1,7 @@
 package exceptions;
 
 public class ValidationException extends Exception {
-    String msg = "";
-
-    public ValidationException() {}
+    private String msg;
 
     public ValidationException(String msg) {
         super();

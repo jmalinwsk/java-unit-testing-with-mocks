@@ -1,9 +1,7 @@
 package exceptions;
 
 public class ElementNotFoundException extends Exception {
-    String msg = "";
-
-    public ElementNotFoundException() {}
+    private String msg;
 
     public ElementNotFoundException(String msg) {
         super();
