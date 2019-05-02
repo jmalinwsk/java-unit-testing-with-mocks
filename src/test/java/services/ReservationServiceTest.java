@@ -28,9 +28,6 @@ class ReservationServiceTest {
     @InjectMocks
     private ReservationService reservationService;
 
-    private RoomService roomService;
-    private UserService userService;
-    private HotelService hotelService;
     private Hotel hotel1;
     private Hotel hotel2;
     private Room room1;
@@ -46,9 +43,6 @@ class ReservationServiceTest {
     void init() {
         databaseContext = mock(IDatabaseContext.class);
         reservationService = new ReservationService(databaseContext);
-        roomService = new RoomService(databaseContext);
-        userService = new UserService(databaseContext);
-        hotelService = new HotelService(databaseContext);
         hotel1 = new Hotel(1, "Sample name", new LocalTime(8), new LocalTime(23));
         hotel2 = new Hotel(2, "Sample name 2", new LocalTime(6), new LocalTime(20));
         room1 = new Room(1, hotel1, 200, 2);
@@ -65,6 +59,53 @@ class ReservationServiceTest {
         reservation3 = new Reservation(3, new DateTime(2019, 8, 1, 11, 0),
                 new DateTime(2019, 8, 2, 11, 0),
                 user1, room2);
+    }
+
+    @Test
+    @DisplayName("validation of reservation (valid)")
+    void reservationValidationTest() {
+        boolean result = reservationService.reservationValidation(reservation1);
+        assertTrue(result);
+    }
+
+    @Test
+    @DisplayName("validation of reservation " +
+            "(returns false because of null argument)")
+    void reservationValidation2Test() {
+        assertFalse(reservationService.reservationValidation(null));
+    }
+
+    @Test
+    @DisplayName("validation of reservation " +
+            "(returns false because start date is after end date)")
+    void reservationValidation3Test() {
+        reservation1.setEndDate(new DateTime(2019, 1, 1, 11, 0));
+        assertFalse(reservationService.reservationValidation(reservation1));
+    }
+
+    @Test
+    @DisplayName("validation of reservation " +
+            "(returns false because user in reservation is null)")
+    void reservationValidation4Test() {
+        reservation1.setUser(null);
+        assertFalse(reservationService.reservationValidation(reservation1));
+    }
+
+    @Test
+    @DisplayName("validation of reservation " +
+            "(returns false because room in reservation is null)")
+    void reservationValidation5Test() {
+        reservation1.setRoom(null);
+        assertFalse(reservationService.reservationValidation(reservation1));
+    }
+
+    @Test
+    @DisplayName("validation of reservation " +
+            "(returns false because user and room in reservation is null)")
+    void reservationValidation6Test() {
+        reservation1.setUser(null);
+        reservation1.setRoom(null);
+        assertFalse(reservationService.reservationValidation(reservation1));
     }
 
     @Test
@@ -241,9 +282,6 @@ class ReservationServiceTest {
     void cleanup() {
         databaseContext = null;
         reservationService = null;
-        roomService = null;
-        userService = null;
-        hotelService = null;
         hotel1 = null;
         hotel2 = null;
         room1 = null;

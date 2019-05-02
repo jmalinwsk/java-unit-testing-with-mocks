@@ -17,7 +17,7 @@ public class ReservationService implements IReservationService {
         this.databaseContext = databaseContext;
     }
 
-    private boolean reservationValidation(Reservation reservation) {
+    boolean reservationValidation(Reservation reservation) {
         return reservation != null &&
                 reservation.getRoom() != null &&
                 reservation.getUser() != null &&
