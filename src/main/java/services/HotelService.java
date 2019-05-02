@@ -14,7 +14,7 @@ public class HotelService implements IHotelService {
         this.databaseContext = databaseContext;
     }
 
-    private boolean hotelValidation(Hotel hotel) {
+    boolean hotelValidation(Hotel hotel) {
         return hotel != null &&
                 hotel.getName() != null &&
                 hotel.getOpenHour() != null &&
@@ -63,6 +63,6 @@ public class HotelService implements IHotelService {
         Hotel hotel = databaseContext.getHotel(id);
         if(hotel != null) {
             databaseContext.delete(hotel);
-        } else throw new ElementNotFoundException(hotel.getName() + " is not found.");
+        } else throw new ElementNotFoundException(id + " is not found.");
     }
 }
