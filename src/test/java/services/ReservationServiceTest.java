@@ -13,6 +13,7 @@ import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import java.time.DateTimeException;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -140,6 +141,127 @@ class ReservationServiceTest {
     }
 
     @Test
+    void addThrowsWhenUserIsNotFound() {
+        when(databaseContext.getUsers()).thenReturn(new HashMap<>());
+
+        assertThrows(ElementNotFoundException.class,
+                () -> reservationService.add(reservation1));
+    }
+
+    @Test
+    void addThrowsWhenRoomIsNotFound() {
+        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
+        when(databaseContext.getRooms()).thenReturn(new HashMap<>());
+
+        assertThrows(ElementNotFoundException.class,
+                () -> reservationService.add(reservation1));
+    }
+
+    @Test
+    void addThrowsWhenReservationHasMinutesInDate() {
+        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
+        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
+        reservation1.setEndDate(new DateTime(2021, 1, 1, 11, 11));
+
+        assertThrows(DateTimeException.class,
+                () -> reservationService.add(reservation1));
+    }
+
+    @Test
+    void addWhenThereAreOtherReservations() {
+        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
+        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
+        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+            {{ put(1, reservation2); }});
+
+        assertDoesNotThrow(() -> reservationService.add(reservation1));
+    }
+
+    @Test
+    void addThrowsWhenRoomIsReservedByOtherPersonInTheSameTime() {
+        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
+            put(1, user1);
+            put(2, user2);
+            put(3, user3);
+        }});
+        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
+            put(1, room1);
+            put(2, room2);
+        }});
+        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+        {{ put(1, reservation1); }});
+
+        Reservation newReservation = new Reservation(3, reservation1.getStartDate(), reservation1.getEndDate(),
+                user1, room1);
+
+        assertThrows(DateTimeException.class,
+                () -> reservationService.add(newReservation));
+    }
+
+    @Test
+    void addThrowsWhenRoomIsReservedByOtherPersonInTheSameTimeAndOtherRoom() {
+        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
+            put(1, user1);
+            put(2, user2);
+            put(3, user3);
+        }});
+        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
+            put(1, room1);
+            put(2, room2);
+        }});
+        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+        {{ put(1, reservation1); }});
+
+        Reservation newReservation = new Reservation(3, reservation1.getStartDate(), reservation1.getEndDate(),
+                user1, room2);
+
+        assertDoesNotThrow(() -> reservationService.add(newReservation));
+
+    }
+
+    @Test
+    void addThrowsWhenRoomIsReservedByOtherPersonInSimilarTime() {
+        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
+            put(1, user1);
+            put(2, user2);
+            put(3, user3);
+        }});
+        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
+            put(1, room1);
+            put(2, room2);
+        }});
+        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+        {{ put(1, reservation1); }});
+
+        Reservation newReservation = new Reservation(3, new DateTime(2019, 5, 4, 11, 0),
+                new DateTime(2019, 5, 6, 11, 0), user1, room1);
+
+        assertThrows(DateTimeException.class,
+                () -> reservationService.add(newReservation));
+    }
+
+    @Test
+    void addThrowsWhenRoomIsReservedByOtherPersonInSimilarTime2() {
+        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
+            put(1, user1);
+            put(2, user2);
+            put(3, user3);
+        }});
+        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
+            put(1, room1);
+            put(2, room2);
+        }});
+        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+        {{ put(1, reservation1); }});
+
+        Reservation newReservation = new Reservation(3, new DateTime(2019, 5, 5, 20, 0),
+                new DateTime(2019, 5, 6, 8, 0), user1, room1);
+
+        assertThrows(DateTimeException.class,
+                () -> reservationService.add(newReservation));
+    }
+
+    @Test
     void validGetTest() throws ElementNotFoundException {
         when(databaseContext.getReservation(reservation1.getId())).thenReturn(reservation1);
 
@@ -168,6 +290,21 @@ class ReservationServiceTest {
 
         assertThrows(ElementNotFoundException.class,
                 () -> reservationService.get(4));
+    }
+
+    @Test
+    void validGetAllTest() {
+        when(databaseContext.getReservations()).thenReturn(
+                new HashMap<Integer, Reservation>() {{ put(1, reservation1); }});
+
+        assertEquals(new HashMap<Integer, Reservation>() {{ put(1, reservation1); }}, reservationService.get());
+    }
+
+    @Test
+    void getAllWhenListIsNull() {
+        when(databaseContext.getReservations()).thenReturn(new HashMap<>());
+
+        assertEquals(new HashMap<>(), reservationService.get());
     }
 
     @Test
@@ -210,6 +347,125 @@ class ReservationServiceTest {
     void updateThrowsWhenReservationIsNull() {
         assertThrows(ValidationException.class,
                 () -> reservationService.update(null));
+    }
+
+    @Test
+    void updateThrowsWhenUserIsNotFound() {
+        when(databaseContext.getUsers()).thenReturn(new HashMap<>());
+
+        assertThrows(ElementNotFoundException.class,
+                () -> reservationService.update(reservation1));
+    }
+
+    @Test
+    void updateThrowsWhenRoomIsNotFound() {
+        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
+        when(databaseContext.getRooms()).thenReturn(new HashMap<>());
+
+        assertThrows(ElementNotFoundException.class,
+                () -> reservationService.update(reservation1));
+    }
+
+    @Test
+    void updateThrowsWhenReservationHasMinutesInDate() {
+        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
+        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
+        reservation1.setEndDate(new DateTime(2021, 1, 1, 11, 11));
+
+        assertThrows(DateTimeException.class,
+                () -> reservationService.update(reservation1));
+    }
+
+    @Test
+    void updateThrowsWhenReservationIsNotFound() {
+        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
+        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
+        when(databaseContext.getReservations()).thenReturn(new HashMap<>());
+
+        assertThrows(ElementNotFoundException.class,
+                () -> reservationService.update(reservation1));
+    }
+
+    @Test
+    void updateThrowsWhenRoomIsReservedByOtherPersonInTheSameTime() {
+        Reservation newReservation = new Reservation(3, new DateTime(2019, 12, 12, 12, 0),
+                new DateTime(2019, 12, 13, 12, 0),
+                user1, room1);
+        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
+            put(1, user1);
+            put(2, user2);
+            put(3, user3);
+        }});
+        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
+            put(1, room1);
+            put(2, room2);
+        }});
+        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+        {{  put(1, reservation1);
+            put(2, reservation2);
+            put(3, newReservation);
+        }});
+
+        newReservation.setStartDate(reservation1.getStartDate());
+        newReservation.setEndDate(reservation1.getEndDate());
+
+        assertThrows(DateTimeException.class,
+                () -> reservationService.update(newReservation));
+    }
+
+    @Test
+    void updateThrowsWhenRoomIsReservedByOtherPersonInSimilarTime() {
+        Reservation newReservation = new Reservation(3, new DateTime(2019, 12, 12, 12, 0),
+                new DateTime(2019, 12, 13, 12, 0),
+                user1, room1);
+        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
+            put(1, user1);
+            put(2, user2);
+            put(3, user3);
+        }});
+        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
+            put(1, room1);
+            put(2, room2);
+        }});
+        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+        {{  put(1, reservation1);
+            put(2, reservation2);
+            put(3, newReservation);
+        }});
+
+        newReservation.setStartDate(new DateTime(2019, 5, 4, 11, 0));
+        newReservation.setEndDate(new DateTime(2019, 5, 6, 11, 0));
+
+        assertThrows(DateTimeException.class,
+                () -> reservationService.update(newReservation));
+    }
+
+    @Test
+    void updateThrowsWhenRoomIsReservedByOtherPersonInTheSameTimeAndSameRoom() {
+        Reservation newReservation = new Reservation(3, new DateTime(2019, 12, 12, 12, 0),
+                new DateTime(2019, 12, 13, 12, 0),
+                user1, room1);
+        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
+            put(1, user1);
+            put(2, user2);
+            put(3, user3);
+        }});
+        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
+            put(1, room1);
+            put(2, room2);
+        }});
+        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+        {{  put(1, reservation1);
+            put(2, reservation2);
+            put(3, newReservation);
+        }});
+
+        newReservation.setStartDate(reservation1.getStartDate());
+        newReservation.setEndDate(reservation1.getEndDate());
+        newReservation.setRoom(reservation1.getRoom());
+
+        assertThrows(DateTimeException.class,
+                () -> reservationService.update(newReservation));
     }
 
     @Test
