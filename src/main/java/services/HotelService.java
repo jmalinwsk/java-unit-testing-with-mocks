@@ -14,7 +14,7 @@ public class HotelService implements IHotelService {
         this.databaseContext = databaseContext;
     }
 
-    boolean hotelValidation(Hotel hotel) {
+    public boolean hotelValidation(Hotel hotel) {
         return hotel != null &&
                 hotel.getName() != null &&
                 hotel.getOpenHour() != null &&

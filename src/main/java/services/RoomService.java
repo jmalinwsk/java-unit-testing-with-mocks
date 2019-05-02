@@ -14,7 +14,7 @@ public class RoomService implements IRoomService {
         this.databaseContext = databaseContext;
     }
 
-    boolean roomValidation(Room room) {
+    public boolean roomValidation(Room room) {
         return room != null &&
                 room.getNumberOfRoom() > 0 &&
                 room.getAmountOfPeople() > 0 &&

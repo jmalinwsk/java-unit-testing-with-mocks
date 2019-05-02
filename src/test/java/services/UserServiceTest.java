@@ -22,7 +22,7 @@ class UserServiceTest {
     private User user;
 
     @BeforeEach
-    void init() {
+    public void init() {
         databaseContext = mock(IDatabaseContext.class);
         userService = new UserService(databaseContext);
 
@@ -31,7 +31,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("validation of user (valid)")
-    void userValidationTest() {
+    public void userValidationTest() {
         boolean result = userService.userValidation(user);
         assertTrue(result);
     }
@@ -39,14 +39,14 @@ class UserServiceTest {
     @Test
     @DisplayName("validation of user " +
             "(returns false because of null argument)")
-    void userValidation2Test() {
+    public void userValidation2Test() {
         assertFalse(userService.userValidation(null));
     }
 
     @Test
     @DisplayName("validation of user " +
             "(returns false because email is an empty string")
-    void userValidation3Test() {
+    public void userValidation3Test() {
         user.setEmail("");
         assertFalse(userService.userValidation(user));
     }
@@ -54,7 +54,7 @@ class UserServiceTest {
     @Test
     @DisplayName("validation of user" +
             "(returns false because email is null")
-    void userValidation4Test() {
+    public void userValidation4Test() {
         user.setEmail(null);
         assertFalse(userService.userValidation(user));
     }
@@ -62,20 +62,20 @@ class UserServiceTest {
     @Test
     @DisplayName("validation of user" +
             "(returns false because email is invalid")
-    void userValidation5Test() {
+    public void userValidation5Test() {
         user.setEmail("invalid email");
         assertFalse(userService.userValidation(user));
     }
 
     @Test
-    void validAddTest() {
+    public void validAddTest() {
         when(databaseContext.getNextUserId()).thenReturn(user.getId());
 
         assertDoesNotThrow(() -> userService.add(user));
     }
 
     @Test
-    void addThrowsWhenUserDoesntPassValidation() {
+    public void addThrowsWhenUserDoesntPassValidation() {
         user.setEmail("sample email@email.com");
 
         assertAll(
@@ -85,20 +85,20 @@ class UserServiceTest {
     }
 
     @Test
-    void addThrowsWhenUserIsNull() {
+    public void addThrowsWhenUserIsNull() {
         assertThrows(ValidationException.class,
                 () -> userService.add(null));
     }
 
     @Test
-    void validGetTest() throws ElementNotFoundException {
+    public void validGetTest() throws ElementNotFoundException {
         when(databaseContext.getUser(1)).thenReturn(user);
 
         assertEquals(user, userService.get(1));
     }
 
     @Test
-    void getThrowsWhenIdIsZero() {
+    public void getThrowsWhenIdIsZero() {
         when(databaseContext.getUser(0)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
@@ -106,7 +106,7 @@ class UserServiceTest {
     }
 
     @Test
-    void getThrowsWhenIdIsNegative() {
+    public void getThrowsWhenIdIsNegative() {
         when(databaseContext.getUser(-1)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
@@ -114,7 +114,7 @@ class UserServiceTest {
     }
 
     @Test
-    void getReturnsNullWhenUserIsNotFound() {
+    public void getReturnsNullWhenUserIsNotFound() {
         when(databaseContext.getUser(2)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
@@ -122,7 +122,7 @@ class UserServiceTest {
     }
 
     @Test
-    void validGetAllTest() {
+    public void validGetAllTest() {
         HashMap<Integer, User> userList = new HashMap<Integer, User>() {{
             put(1, user);
         }};
@@ -132,21 +132,21 @@ class UserServiceTest {
     }
 
     @Test
-    void getAllWhenListIsNull() {
+    public void getAllWhenListIsNull() {
         when(databaseContext.getUsers()).thenReturn(null);
 
         assertNull(userService.get());
     }
 
     @Test
-    void validUpdateTest() {
+    public void validUpdateTest() {
         when(databaseContext.getUser(user.getId())).thenReturn(user);
 
         assertDoesNotThrow(() -> userService.update(user));
     }
 
     @Test
-    void updateThrowsWhenUserDoesntPassValidation() {
+    public void updateThrowsWhenUserDoesntPassValidation() {
         user.setEmail("sample email");
 
         assertThrows(ValidationException.class,
@@ -154,13 +154,13 @@ class UserServiceTest {
     }
 
     @Test
-    void updateThrowsWhenUserIsNull() {
+    public void updateThrowsWhenUserIsNull() {
         assertThrows(ValidationException.class,
                 () -> userService.update(null));
     }
 
     @Test
-    void updateThrowsWhenUserDoesNotExist() {
+    public void updateThrowsWhenUserDoesNotExist() {
         when(databaseContext.getUser(user.getId())).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
@@ -168,14 +168,14 @@ class UserServiceTest {
     }
 
     @Test
-    void validDeleteTest() {
+    public void validDeleteTest() {
         when(databaseContext.getUser(user.getId())).thenReturn(user);
 
         assertDoesNotThrow(() -> userService.delete(user.getId()));
     }
 
     @Test
-    void deleteThrowsWhenIdIsZero() {
+    public void deleteThrowsWhenIdIsZero() {
         when(databaseContext.getUser(0)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
@@ -183,7 +183,7 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteThrowsWhenIdIsNegative() {
+    public void deleteThrowsWhenIdIsNegative() {
         when(databaseContext.getUser(-1)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
@@ -191,7 +191,7 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteThrowsWhenUserIsNotFound() {
+    public void deleteThrowsWhenUserIsNotFound() {
         when(databaseContext.getUser(2)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
@@ -199,7 +199,7 @@ class UserServiceTest {
     }
 
     @AfterEach
-    void cleanup() {
+    public void cleanup() {
         databaseContext = null;
         userService = null;
         user = null;

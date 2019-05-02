@@ -37,7 +37,7 @@ class ReservationServiceTest {
     private Reservation reservation3;
 
     @BeforeEach
-    void init() {
+    public void init() {
         databaseContext = mock(IDatabaseContext.class);
         reservationService = new ReservationService(databaseContext);
         hotel1 = new Hotel(1, "Sample name", new LocalTime(8), new LocalTime(23));
@@ -60,7 +60,7 @@ class ReservationServiceTest {
 
     @Test
     @DisplayName("validation of reservation (valid)")
-    void reservationValidationTest() {
+    public void reservationValidationTest() {
         boolean result = reservationService.reservationValidation(reservation1);
         assertTrue(result);
     }
@@ -68,14 +68,14 @@ class ReservationServiceTest {
     @Test
     @DisplayName("validation of reservation " +
             "(returns false because of null argument)")
-    void reservationValidation2Test() {
+    public void reservationValidation2Test() {
         assertFalse(reservationService.reservationValidation(null));
     }
 
     @Test
     @DisplayName("validation of reservation " +
             "(returns false because start date is after end date)")
-    void reservationValidation3Test() {
+    public void reservationValidation3Test() {
         reservation1.setEndDate(new DateTime(2019, 1, 1, 11, 0));
         assertFalse(reservationService.reservationValidation(reservation1));
     }
@@ -83,7 +83,7 @@ class ReservationServiceTest {
     @Test
     @DisplayName("validation of reservation " +
             "(returns false because user in reservation is null)")
-    void reservationValidation4Test() {
+    public void reservationValidation4Test() {
         reservation1.setUser(null);
         assertFalse(reservationService.reservationValidation(reservation1));
     }
@@ -91,7 +91,7 @@ class ReservationServiceTest {
     @Test
     @DisplayName("validation of reservation " +
             "(returns false because room in reservation is null)")
-    void reservationValidation5Test() {
+    public void reservationValidation5Test() {
         reservation1.setRoom(null);
         assertFalse(reservationService.reservationValidation(reservation1));
     }
@@ -99,14 +99,14 @@ class ReservationServiceTest {
     @Test
     @DisplayName("validation of reservation " +
             "(returns false because user and room in reservation is null)")
-    void reservationValidation6Test() {
+    public void reservationValidation6Test() {
         reservation1.setUser(null);
         reservation1.setRoom(null);
         assertFalse(reservationService.reservationValidation(reservation1));
     }
 
     @Test
-    void validAddTest() {
+    public void validAddTest() {
         when(databaseContext.getUsers()).thenReturn(
                 new HashMap<Integer, User>() {{
                     put(1, user1);
@@ -125,7 +125,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void addThrowsWhenReservationDoesntPassValidation() {
+    public void addThrowsWhenReservationDoesntPassValidation() {
         reservation1.setEndDate(new DateTime(2019, 1, 1, 11, 0));
 
         assertThrows(ValidationException.class,
@@ -133,7 +133,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void addThrowsWhenRoomIsNull() {
+    public void addThrowsWhenRoomIsNull() {
         reservation1.setRoom(null);
 
         assertThrows(ValidationException.class,
@@ -141,7 +141,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void addThrowsWhenUserIsNotFound() {
+    public void addThrowsWhenUserIsNotFound() {
         when(databaseContext.getUsers()).thenReturn(new HashMap<>());
 
         assertThrows(ElementNotFoundException.class,
@@ -149,7 +149,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void addThrowsWhenRoomIsNotFound() {
+    public void addThrowsWhenRoomIsNotFound() {
         when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
         when(databaseContext.getRooms()).thenReturn(new HashMap<>());
 
@@ -158,7 +158,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void addThrowsWhenReservationHasMinutesInDate() {
+    public void addThrowsWhenReservationHasMinutesInDate() {
         when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
         when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
         reservation1.setEndDate(new DateTime(2021, 1, 1, 11, 11));
@@ -168,7 +168,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void addWhenThereAreOtherReservations() {
+    public void addWhenThereAreOtherReservations() {
         when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
         when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
         when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
@@ -178,7 +178,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void addThrowsWhenRoomIsReservedByOtherPersonInTheSameTime() {
+    public void addThrowsWhenRoomIsReservedByOtherPersonInTheSameTime() {
         when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
             put(1, user1);
             put(2, user2);
@@ -199,7 +199,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void addThrowsWhenRoomIsReservedByOtherPersonInTheSameTimeAndOtherRoom() {
+    public void addThrowsWhenRoomIsReservedByOtherPersonInTheSameTimeAndOtherRoom() {
         when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
             put(1, user1);
             put(2, user2);
@@ -220,7 +220,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void addThrowsWhenRoomIsReservedByOtherPersonInSimilarTime() {
+    public void addThrowsWhenRoomIsReservedByOtherPersonInSimilarTime() {
         when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
             put(1, user1);
             put(2, user2);
@@ -241,7 +241,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void addThrowsWhenRoomIsReservedByOtherPersonInSimilarTime2() {
+    public void addThrowsWhenRoomIsReservedByOtherPersonInSimilarTime2() {
         when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
             put(1, user1);
             put(2, user2);
@@ -262,14 +262,14 @@ class ReservationServiceTest {
     }
 
     @Test
-    void validGetTest() throws ElementNotFoundException {
+    public void validGetTest() throws ElementNotFoundException {
         when(databaseContext.getReservation(reservation1.getId())).thenReturn(reservation1);
 
         assertEquals(reservation1, reservationService.get(reservation1.getId()));
     }
 
     @Test
-    void getThrowsWhenIdIsZero() {
+    public void getThrowsWhenIdIsZero() {
         when(databaseContext.getReservation(0)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
@@ -277,7 +277,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void getThrowsWhenIdIsNegative() {
+    public void getThrowsWhenIdIsNegative() {
         when(databaseContext.getReservation(-1)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
@@ -285,7 +285,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void getReturnsNullWhenReservationIsNotFound() {
+    public void getReturnsNullWhenReservationIsNotFound() {
         when(databaseContext.getReservation(4)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
@@ -293,7 +293,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void validGetAllTest() {
+    public void validGetAllTest() {
         when(databaseContext.getReservations()).thenReturn(
                 new HashMap<Integer, Reservation>() {{ put(1, reservation1); }});
 
@@ -301,14 +301,14 @@ class ReservationServiceTest {
     }
 
     @Test
-    void getAllWhenListIsNull() {
+    public void getAllWhenListIsNull() {
         when(databaseContext.getReservations()).thenReturn(new HashMap<>());
 
         assertEquals(new HashMap<>(), reservationService.get());
     }
 
     @Test
-    void validUpdateTest() {
+    public void validUpdateTest() {
         when(databaseContext.getUsers()).thenReturn(
                 new HashMap<Integer, User>() {{
                     put(1, user1);
@@ -335,7 +335,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void updateThrowsWhenReservationDoesntPassValidation() {
+    public void updateThrowsWhenReservationDoesntPassValidation() {
         reservation1.setStartDate(new DateTime(2019, 1, 1, 11, 0));
         reservation1.setEndDate(new DateTime(2018, 1, 1, 11, 0));
 
@@ -344,13 +344,13 @@ class ReservationServiceTest {
     }
 
     @Test
-    void updateThrowsWhenReservationIsNull() {
+    public void updateThrowsWhenReservationIsNull() {
         assertThrows(ValidationException.class,
                 () -> reservationService.update(null));
     }
 
     @Test
-    void updateThrowsWhenUserIsNotFound() {
+    public void updateThrowsWhenUserIsNotFound() {
         when(databaseContext.getUsers()).thenReturn(new HashMap<>());
 
         assertThrows(ElementNotFoundException.class,
@@ -358,7 +358,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void updateThrowsWhenRoomIsNotFound() {
+    public void updateThrowsWhenRoomIsNotFound() {
         when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
         when(databaseContext.getRooms()).thenReturn(new HashMap<>());
 
@@ -367,7 +367,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void updateThrowsWhenReservationHasMinutesInDate() {
+    public void updateThrowsWhenReservationHasMinutesInDate() {
         when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
         when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
         reservation1.setEndDate(new DateTime(2021, 1, 1, 11, 11));
@@ -377,7 +377,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void updateThrowsWhenReservationIsNotFound() {
+    public void updateThrowsWhenReservationIsNotFound() {
         when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
         when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
         when(databaseContext.getReservations()).thenReturn(new HashMap<>());
@@ -387,7 +387,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void updateThrowsWhenRoomIsReservedByOtherPersonInTheSameTime() {
+    public void updateThrowsWhenRoomIsReservedByOtherPersonInTheSameTime() {
         Reservation newReservation = new Reservation(3, new DateTime(2019, 12, 12, 12, 0),
                 new DateTime(2019, 12, 13, 12, 0),
                 user1, room1);
@@ -414,7 +414,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void updateThrowsWhenRoomIsReservedByOtherPersonInSimilarTime() {
+    public void updateThrowsWhenRoomIsReservedByOtherPersonInSimilarTime() {
         Reservation newReservation = new Reservation(3, new DateTime(2019, 12, 12, 12, 0),
                 new DateTime(2019, 12, 13, 12, 0),
                 user1, room1);
@@ -441,7 +441,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void updateThrowsWhenRoomIsReservedByOtherPersonInTheSameTimeAndSameRoom() {
+    public void updateThrowsWhenRoomIsReservedByOtherPersonInTheSameTimeAndSameRoom() {
         Reservation newReservation = new Reservation(3, new DateTime(2019, 12, 12, 12, 0),
                 new DateTime(2019, 12, 13, 12, 0),
                 user1, room1);
@@ -469,14 +469,14 @@ class ReservationServiceTest {
     }
 
     @Test
-    void validDeleteTest() {
+    public void validDeleteTest() {
         when(databaseContext.getReservation(reservation1.getId())).thenReturn(reservation1);
 
         assertDoesNotThrow(() -> reservationService.delete(reservation1.getId()));
     }
 
     @Test
-    void deleteThrowsWhenIdIsZero() {
+    public void deleteThrowsWhenIdIsZero() {
         when(databaseContext.getReservation(0)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
@@ -484,7 +484,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void deleteThrowsWhenIdIsNegative() {
+    public void deleteThrowsWhenIdIsNegative() {
         when(databaseContext.getReservation(-1)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
@@ -492,7 +492,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void deleteThrowsWhenReservationIsNotFound() {
+    public void deleteThrowsWhenReservationIsNotFound() {
         when(databaseContext.getReservation(4)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
@@ -500,14 +500,14 @@ class ReservationServiceTest {
     }
 
     @Test
-    void getEmptyReservationsOfUser() {
+    public void getEmptyReservationsOfUser() {
         when(reservationService.getReservationsOfUser(user1)).thenReturn(new HashMap<>());
 
         assertEquals(new HashMap<>(), reservationService.getReservationsOfUser(user1));
     }
 
     @Test
-    void getReservationsOfUser() {
+    public void getReservationsOfUser() {
         when(databaseContext.getReservations()).thenReturn(
                 new HashMap<Integer, Reservation>() {{
                     put(1, reservation1);
@@ -525,13 +525,13 @@ class ReservationServiceTest {
     }
 
     @Test
-    void getReservationsOfUserThrowsWhenUserIsNull() {
+    public void getReservationsOfUserThrowsWhenUserIsNull() {
         assertThrows(IllegalArgumentException.class,
                 () -> reservationService.getReservationsOfUser(null));
     }
 
     @AfterEach
-    void cleanup() {
+    public void cleanup() {
         databaseContext = null;
         reservationService = null;
         hotel1 = null;

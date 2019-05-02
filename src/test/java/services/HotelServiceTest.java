@@ -14,20 +14,22 @@ import static org.junit.jupiter.api.Assertions.*;
 class HotelServiceTest {
     private DatabaseContext databaseContext;
     private HotelService hotelService;
+    private HashMap<Integer, Hotel> hotelList;
 
     private Hotel hotel;
 
     @BeforeEach
-    void init() {
+    public void init() {
         databaseContext = new DatabaseContext();
         hotelService = new HotelService(databaseContext);
         hotel = new Hotel(1, "Sample name",
                 new LocalTime(6), new LocalTime((22)));
+        hotelList = new HashMap<Integer, Hotel>() {{ put(1, hotel); }};
     }
 
     @Test
     @DisplayName("validation of hotel (valid)")
-    void hotelValidationTest() {
+    public void hotelValidationTest() {
         boolean result = hotelService.hotelValidation(hotel);
         assertTrue(result);
     }
@@ -35,14 +37,14 @@ class HotelServiceTest {
     @Test
     @DisplayName("validation of hotel " +
             "(returns false because of null argument)")
-    void hotelValidation2Test() {
+    public void hotelValidation2Test() {
         assertFalse(hotelService.hotelValidation(null));
     }
 
     @Test
     @DisplayName("validation of hotel " +
             "(returns false because of hotel name as null)")
-    void hotelValidation3Test() {
+    public void hotelValidation3Test() {
         hotel.setName(null);
         assertFalse(hotelService.hotelValidation(hotel));
     }
@@ -50,7 +52,7 @@ class HotelServiceTest {
     @Test
     @DisplayName("validation of hotel " +
             "(returns false because hotel name is empty string)")
-    void hotelValidation4Test() {
+    public void hotelValidation4Test() {
         hotel.setName("");
         assertFalse(hotelService.hotelValidation(hotel));
     }
@@ -58,7 +60,7 @@ class HotelServiceTest {
     @Test
     @DisplayName("validation of hotel " +
             "(returns false because open hour is null)")
-    void hotelValidation5Test() {
+    public void hotelValidation5Test() {
         hotel.setOpenHour(null);
         assertFalse(hotelService.hotelValidation(hotel));
     }
@@ -66,7 +68,7 @@ class HotelServiceTest {
     @Test
     @DisplayName("validation of hotel " +
             "(returns false because close hour is null)")
-    void hotelValidation6Test() {
+    public void hotelValidation6Test() {
         hotel.setCloseHour(null);
         assertFalse(hotelService.hotelValidation(hotel));
     }
@@ -74,14 +76,14 @@ class HotelServiceTest {
     @Test
     @DisplayName("validation of hotel " +
             "(returns false because open hour is after close hour)")
-    void hotelValidation7Test() {
+    public void hotelValidation7Test() {
         hotel.setOpenHour(new LocalTime(21));
         hotel.setCloseHour(new LocalTime(20));
         assertFalse(hotelService.hotelValidation(hotel));
     }
 
     @Test
-    void validAddTest() throws ValidationException, ElementNotFoundException {
+    public void validAddTest() throws ValidationException, ElementNotFoundException {
         hotelService.add(hotel);
         Hotel result = hotelService.get(hotel.getId());
 
@@ -94,7 +96,7 @@ class HotelServiceTest {
     }
 
     @Test
-    void addThrowsWhenHotelDoesntPassValidation() {
+    public void addThrowsWhenHotelDoesntPassValidation() {
         hotel.setOpenHour(null);
 
         assertThrows(ValidationException.class,
@@ -102,50 +104,50 @@ class HotelServiceTest {
     }
 
     @Test
-    void addThrowsWhenHotelIsNull() {
+    public void addThrowsWhenHotelIsNull() {
         assertThrows(ValidationException.class,
                 () -> hotelService.add(null));
     }
 
     @Test
-    void validGetTest() throws ElementNotFoundException, ValidationException {
+    public void validGetTest() throws ElementNotFoundException, ValidationException {
         hotelService.add(hotel);
 
         assertEquals(hotel, hotelService.get(hotel.getId()));
     }
 
     @Test
-    void getThrowsWhenIdIsZero() {
+    public void getThrowsWhenIdIsZero() {
         assertThrows(ElementNotFoundException.class,
                 () -> hotelService.get(0));
     }
 
     @Test
-    void getThrowsWhenIdIsNegative() {
+    public void getThrowsWhenIdIsNegative() {
         assertThrows(ElementNotFoundException.class,
                 () -> hotelService.get(-1));
     }
 
     @Test
-    void getReturnsNullWhenHotelIsNotFound() {
+    public void getReturnsNullWhenHotelIsNotFound() {
         assertThrows(ElementNotFoundException.class,
                 () -> hotelService.get(2));
     }
 
     @Test
-    void validGetAllTest() throws ValidationException {
+    public void validGetAllTest() throws ValidationException {
         hotelService.add(hotel);
 
-        assertEquals(new HashMap<Integer, Hotel>() {{ put(1, hotel); }}, hotelService.get());
+        assertEquals(hotelList, hotelService.get());
     }
 
     @Test
-    void getAllWhenListIsNull() {
+    public void getAllWhenListIsNull() {
         assertEquals(new HashMap<>(), hotelService.get());
     }
 
     @Test
-    void validUpdateTest() throws ValidationException {
+    public void validUpdateTest() throws ValidationException {
         hotelService.add(hotel);
         String name = hotel.getName();
         hotel.setName("New hotel name");
@@ -157,7 +159,7 @@ class HotelServiceTest {
     }
 
     @Test
-    void updateThrowsWhenHotelDoesntPassValidation() throws ValidationException {
+    public void updateThrowsWhenHotelDoesntPassValidation() throws ValidationException {
         hotelService.add(hotel);
         hotel.setName(null);
 
@@ -166,19 +168,19 @@ class HotelServiceTest {
     }
 
     @Test
-    void updateThrowsWhenHotelIsNull() {
+    public void updateThrowsWhenHotelIsNull() {
         assertThrows(ValidationException.class,
                 () -> hotelService.update(null));
     }
 
     @Test
-    void updateThrowsWhenHotelDoesNotExist() {
+    public void updateThrowsWhenHotelDoesNotExist() {
         assertThrows(ElementNotFoundException.class,
                 () -> hotelService.update(hotel));
     }
 
     @Test
-    void validDeleteTest() throws ValidationException {
+    public void validDeleteTest() throws ValidationException {
         hotelService.add(hotel);
 
         assertAll(
@@ -189,27 +191,28 @@ class HotelServiceTest {
     }
 
     @Test
-    void deleteThrowsWhenIdIsZero() {
+    public void deleteThrowsWhenIdIsZero() {
         assertThrows(ElementNotFoundException.class,
                 () -> hotelService.delete(0));
     }
 
     @Test
-    void deleteThrowsWhenIdIsNegative() {
+    public void deleteThrowsWhenIdIsNegative() {
         assertThrows(ElementNotFoundException.class,
                 () -> hotelService.delete(-1));
     }
 
     @Test
-    void deleteThrowsWhenHotelIsNotFound() {
+    public void deleteThrowsWhenHotelIsNotFound() {
         assertThrows(ElementNotFoundException.class,
                 () -> hotelService.delete(2));
     }
 
     @AfterEach
-    void cleanup() {
+    public void cleanup() {
         databaseContext = null;
         hotelService = null;
         hotel = null;
+        hotelList = null;
     }
 }
