@@ -4,7 +4,6 @@ import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
 import models.Hotel;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 
 public interface IHotelService {

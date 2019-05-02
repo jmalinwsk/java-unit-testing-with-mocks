@@ -8,19 +8,15 @@ import models.Reservation;
 import models.Room;
 import models.User;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.doThrow;
 
 class ReservationServiceTest {
     @Mock
@@ -274,7 +270,7 @@ class ReservationServiceTest {
 
     @Test
     void getReservationsOfUserThrowsWhenUserIsNull() {
-        assertThrows(NullPointerException.class,
+        assertThrows(IllegalArgumentException.class,
                 () -> reservationService.getReservationsOfUser(null));
     }
 

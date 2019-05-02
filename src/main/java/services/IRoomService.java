@@ -5,7 +5,6 @@ import exceptions.ValidationException;
 import models.Room;
 
 import java.util.HashMap;
-import java.util.List;
 
 public interface IRoomService {
     void add(Room room) throws ValidationException, ElementNotFoundException;

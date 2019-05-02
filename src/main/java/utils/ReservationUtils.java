@@ -5,10 +5,8 @@ import models.Reservation;
 public class ReservationUtils {
     public static boolean hasMinutesInDate(Reservation reservation) {
         System.out.println();
-        if(reservation.getStartDate().getMinuteOfDay()%60 != 0 ||
-            reservation.getEndDate().getMinuteOfDay()%60 != 0)
-            return true;
-        else return false;
+        return reservation.getStartDate().getMinuteOfDay() % 60 != 0 ||
+                reservation.getEndDate().getMinuteOfDay() % 60 != 0;
     }
 
     public static boolean isContainedIn(Reservation r1, Reservation r2) {

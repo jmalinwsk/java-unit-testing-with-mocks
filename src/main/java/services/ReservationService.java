@@ -1,5 +1,6 @@
 package services;
 
+import com.sun.javaws.exceptions.InvalidArgumentException;
 import database.IDatabaseContext;
 import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
@@ -135,6 +136,6 @@ public class ReservationService implements IReservationService {
                     counter++;
                 }
             return reservationsOfUser;
-        } else throw new NullPointerException();
+        } else throw new IllegalArgumentException();
     }
 }

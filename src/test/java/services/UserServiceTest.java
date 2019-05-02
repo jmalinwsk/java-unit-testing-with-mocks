@@ -12,7 +12,6 @@ import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.doThrow;
 
 class UserServiceTest {
     @Mock
