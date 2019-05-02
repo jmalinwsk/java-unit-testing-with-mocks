@@ -34,6 +34,47 @@ class RoomServiceTest {
     }
 
     @Test
+    @DisplayName("validation of room" +
+            "(returns false because of null argument")
+    void roomValidation2Test() {
+        assertFalse(roomService.roomValidation(null));
+    }
+
+    @Test
+    @DisplayName("validation of room" +
+            "(returns false because of negative number of room)")
+    void roomValidation3Test() {
+        room.setNumberOfRoom(-1);
+        assertFalse(roomService.roomValidation(room));
+    }
+
+    @Test
+    @DisplayName("validation of room" +
+            "(returns false because of negative number of amount of people" +
+            "in hotel room)")
+    void roomValidation4Test() {
+        room.setAmountOfPeople(-1);
+        assertFalse(roomService.roomValidation(room));
+    }
+
+    @Test
+    @DisplayName("validation of room" +
+            "(returns false because of 0 number of amount of people" +
+            "in hotel room)")
+    void roomValidation5Test() {
+        room.setAmountOfPeople(0);
+        assertFalse(roomService.roomValidation(room));
+    }
+
+    @Test
+    @DisplayName("validation of room" +
+            "(returns false because hotel is null)")
+    void roomValidation6Test() {
+        room.setHotel(null);
+        assertFalse(roomService.roomValidation(room));
+    }
+
+    @Test
     void validAddTest() {
         when(databaseContext.getHotels()).thenReturn(
                 new HashMap<Integer, Hotel>() {{ put(1, hotel); }}
@@ -49,6 +90,14 @@ class RoomServiceTest {
 
         assertThrows(ValidationException.class,
                         () -> roomService.add(room));
+    }
+
+    @Test
+    void addThrowsWhenHotelIsNotFound() {
+        when(databaseContext.getHotels()).thenReturn(new HashMap<>());
+
+        assertThrows(ElementNotFoundException.class,
+                () -> roomService.add(room));
     }
 
     @Test
@@ -91,6 +140,23 @@ class RoomServiceTest {
     }
 
     @Test
+    void validGetAllTest() {
+        HashMap<Integer, Room> roomList = new HashMap<Integer, Room>() {{
+           put(1, room);
+        }};
+        when(databaseContext.getRooms()).thenReturn(roomList);
+
+        assertEquals(roomList, roomService.get());
+    }
+
+    @Test
+    void getAllWhenListIsEmpty() {
+        when(databaseContext.getRooms()).thenReturn(new HashMap<>());
+
+        assertEquals(new HashMap<>(), roomService.get());
+    }
+
+    @Test
     void validUpdateTest() {
         when(databaseContext.getRoom(room.getId())).thenReturn(room);
 
@@ -109,6 +175,14 @@ class RoomServiceTest {
     void updateThrowsWhenRoomIsNull() {
         assertThrows(ValidationException.class,
                 () -> roomService.update(null));
+    }
+
+    @Test
+    void updateThrowsWhenRoomIsNotFound() {
+        when(databaseContext.getRoom(room.getId())).thenReturn(null);
+
+        assertThrows(ElementNotFoundException.class,
+                () -> roomService.update(room));
     }
 
     @Test
