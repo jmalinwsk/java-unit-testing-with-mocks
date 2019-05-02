@@ -3,6 +3,7 @@ package services;
 import database.IDatabaseContext;
 import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
+import models.Reservation;
 import models.Room;
 
 import java.util.HashMap;
@@ -73,6 +74,13 @@ public class RoomService implements IRoomService {
 
     @Override
     public HashMap<Integer, Room> getFreeRooms() {
-        return null;
+        HashMap<Integer, Room> freeRooms = databaseContext.getRooms();
+
+        for(Reservation reservation : databaseContext.getReservations().values())
+            for(Room room : freeRooms.values())
+                if(reservation.getRoom() == room)
+                    freeRooms.remove(room.getId(), room);
+
+        return freeRooms;
     }
 }

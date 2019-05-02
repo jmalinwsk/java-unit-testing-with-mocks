@@ -4,7 +4,10 @@ import database.IDatabaseContext;
 import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
 import models.Hotel;
+import models.Reservation;
 import models.Room;
+import models.User;
+import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
@@ -22,7 +25,8 @@ class RoomServiceTest {
     private RoomService roomService;
 
     private Hotel hotel;
-    private Room room;
+    private Room room1;
+    private Room room2;
     private HashMap<Integer, Hotel> hotelList;
 
     @BeforeEach
@@ -30,65 +34,66 @@ class RoomServiceTest {
         databaseContext = mock(IDatabaseContext.class);
         roomService = new RoomService(databaseContext);
         hotel = new Hotel(1, "Sample name", new LocalTime(7), new LocalTime(22));
-        room = new Room(1, hotel, 400, 3);
+        room1 = new Room(1, hotel, 400, 3);
+        room2 = new Room(2, hotel, 202, 2);
         hotelList = new HashMap<Integer, Hotel>() {{ put(1, hotel); }};
     }
 
     @Test
-    @DisplayName("validation of room" +
+    @DisplayName("validation of room1" +
             "(returns false because of null argument")
     public void roomValidation2Test() {
         assertFalse(roomService.roomValidation(null));
     }
 
     @Test
-    @DisplayName("validation of room" +
-            "(returns false because of negative number of room)")
+    @DisplayName("validation of room1" +
+            "(returns false because of negative number of room1)")
     public void roomValidation3Test() {
-        room.setNumberOfRoom(-1);
-        assertFalse(roomService.roomValidation(room));
+        room1.setNumberOfRoom(-1);
+        assertFalse(roomService.roomValidation(room1));
     }
 
     @Test
-    @DisplayName("validation of room" +
+    @DisplayName("validation of room1" +
             "(returns false because of negative number of amount of people" +
-            "in hotel room)")
+            "in hotel room1)")
     public void roomValidation4Test() {
-        room.setAmountOfPeople(-1);
-        assertFalse(roomService.roomValidation(room));
+        room1.setAmountOfPeople(-1);
+        assertFalse(roomService.roomValidation(room1));
     }
 
     @Test
-    @DisplayName("validation of room" +
+    @DisplayName("validation of room1" +
             "(returns false because of 0 number of amount of people" +
-            "in hotel room)")
+            "in hotel room1)")
     public void roomValidation5Test() {
-        room.setAmountOfPeople(0);
-        assertFalse(roomService.roomValidation(room));
+        room1.setAmountOfPeople(0);
+        assertFalse(roomService.roomValidation(room1));
     }
 
     @Test
-    @DisplayName("validation of room" +
+    @DisplayName("validation of room1" +
             "(returns false because hotel is null)")
     public void roomValidation6Test() {
-        room.setHotel(null);
-        assertFalse(roomService.roomValidation(room));
+        room1.setHotel(null);
+        assertFalse(roomService.roomValidation(room1));
     }
 
     @Test
     public void validAddTest() {
         when(databaseContext.getHotels()).thenReturn(hotelList);
-        when(databaseContext.getNextRoomId()).thenReturn(room.getId());
+        when(databaseContext.getNextRoomId()).thenReturn(room1.getId());
 
-        assertDoesNotThrow(() -> roomService.add(room));
+        assertDoesNotThrow(() -> roomService.add(room1));
     }
 
     @Test
     public void addThrowsWhenRoomDoesntPassValidation() {
-        room.setAmountOfPeople(-5);
+        room1.setAmountOfPeople(-5);
 
         assertThrows(ValidationException.class,
-                        () -> roomService.add(room));
+                        () -> roomService.add(room1));
     }
 
     @Test
@@ -96,7 +101,7 @@ class RoomServiceTest {
         when(databaseContext.getHotels()).thenReturn(new HashMap<>());
 
         assertThrows(ElementNotFoundException.class,
-                () -> roomService.add(room));
+                () -> roomService.add(room1));
     }
 
     @Test
@@ -107,11 +112,11 @@ class RoomServiceTest {
 
     @Test
     public void validGetTest() throws ElementNotFoundException {
-        when(databaseContext.getRoom(room.getId())).thenReturn(room);
+        when(databaseContext.getRoom(room1.getId())).thenReturn(room1);
 
-        Room result = roomService.get(room.getId());
+        Room result = roomService.get(room1.getId());
 
-        assertEquals(room, result);
+        assertEquals(room1, result);
     }
 
     @Test
@@ -141,7 +146,7 @@ class RoomServiceTest {
     @Test
     public void validGetAllTest() {
         HashMap<Integer, Room> roomList = new HashMap<Integer, Room>() {{
-           put(1, room);
+           put(1, room1);
         }};
         when(databaseContext.getRooms()).thenReturn(roomList);
 
@@ -157,17 +162,17 @@ class RoomServiceTest {
 
     @Test
     public void validUpdateTest() {
-        when(databaseContext.getRoom(room.getId())).thenReturn(room);
+        when(databaseContext.getRoom(room1.getId())).thenReturn(room1);
 
-        assertDoesNotThrow(() -> roomService.update(room));
+        assertDoesNotThrow(() -> roomService.update(room1));
     }
 
     @Test
     public void updateThrowsWhenRoomDoesntPassValidation() {
-        room.setAmountOfPeople(-5);
+        room1.setAmountOfPeople(-5);
 
         assertThrows(ValidationException.class,
-                        () -> roomService.update(room));
+                        () -> roomService.update(room1));
     }
 
     @Test
@@ -178,17 +183,17 @@ class RoomServiceTest {
 
     @Test
     public void updateThrowsWhenRoomIsNotFound() {
-        when(databaseContext.getRoom(room.getId())).thenReturn(null);
+        when(databaseContext.getRoom(room1.getId())).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> roomService.update(room));
+                () -> roomService.update(room1));
     }
 
     @Test
     public void validDeleteTest() {
-        when(databaseContext.getRoom(room.getId())).thenReturn(room);
+        when(databaseContext.getRoom(room1.getId())).thenReturn(room1);
 
-        assertDoesNotThrow(() -> roomService.delete(room.getId()));
+        assertDoesNotThrow(() -> roomService.delete(room1.getId()));
     }
 
     @Test
@@ -216,21 +221,39 @@ class RoomServiceTest {
     }
 
     @Test
-    @Disabled
     public void getFreeRoomsTest() {
         HashMap<Integer, Room> rooms = new HashMap<>();
-        rooms.put(1, new Room());
-        when(roomService.getFreeRooms()).thenReturn(rooms);
+        rooms.put(1, room1);
+        rooms.put(2, room2);
+        when(databaseContext.getRooms()).thenReturn(rooms);
+        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>() {{
+            put(1, new Reservation(1, new DateTime(2019, 1, 1, 11, 0),
+                    new DateTime(2019, 1, 2, 11, 0), new User(), room2));
+        }});
+
+        HashMap<Integer, Room> result = new HashMap<>();
+        result.put(1, room1);
+
+        assertEquals(result, roomService.getFreeRooms());
+    }
+
+    @Test
+    public void getFreeRoomsWhenAllRoomsAreFree() {
+        HashMap<Integer, Room> rooms = new HashMap<>();
+        rooms.put(1, room1);
+        when(databaseContext.getRooms()).thenReturn(rooms);
+        when(databaseContext.getReservations()).thenReturn(new HashMap<>());
 
         assertEquals(rooms, roomService.getFreeRooms());
     }
 
     @Test
-    @Disabled
     public void getFreeRoomsWhenThereAreNoRooms() {
-        when(roomService.getFreeRooms()).thenReturn(null);
+        HashMap<Integer, Room> roomList = new HashMap<>();
+        when(databaseContext.getRooms()).thenReturn(roomList);
+        when(databaseContext.getReservations()).thenReturn(new HashMap<>());
 
-        assertNull(roomService.getFreeRooms());
+        assertEquals(new HashMap<Integer, Room>(), roomService.getFreeRooms());
     }
 
     @AfterEach
@@ -238,7 +261,8 @@ class RoomServiceTest {
         databaseContext = null;
         roomService = null;
         hotel = null;
-        room = null;
+        room1 = null;
+        room2 = null;
         hotelList = null;
     }
 }
