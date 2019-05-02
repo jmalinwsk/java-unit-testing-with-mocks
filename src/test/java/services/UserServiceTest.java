@@ -31,6 +31,44 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("validation of user (valid)")
+    void userValidationTest() {
+        boolean result = userService.userValidation(user);
+        assertTrue(result);
+    }
+
+    @Test
+    @DisplayName("validation of user " +
+            "(returns false because of null argument)")
+    void userValidation2Test() {
+        assertFalse(userService.userValidation(null));
+    }
+
+    @Test
+    @DisplayName("validation of user " +
+            "(returns false because email is an empty string")
+    void userValidation3Test() {
+        user.setEmail("");
+        assertFalse(userService.userValidation(user));
+    }
+
+    @Test
+    @DisplayName("validation of user" +
+            "(returns false because email is null")
+    void userValidation4Test() {
+        user.setEmail(null);
+        assertFalse(userService.userValidation(user));
+    }
+
+    @Test
+    @DisplayName("validation of user" +
+            "(returns false because email is invalid")
+    void userValidation5Test() {
+        user.setEmail("invalid email");
+        assertFalse(userService.userValidation(user));
+    }
+
+    @Test
     void validAddTest() {
         when(databaseContext.getNextUserId()).thenReturn(user.getId());
 
@@ -85,6 +123,23 @@ class UserServiceTest {
     }
 
     @Test
+    void validGetAllTest() {
+        HashMap<Integer, User> userList = new HashMap<Integer, User>() {{
+            put(1, user);
+        }};
+        when(databaseContext.getUsers()).thenReturn(userList);
+
+        assertEquals(userList, userService.get());
+    }
+
+    @Test
+    void getAllWhenListIsNull() {
+        when(databaseContext.getUsers()).thenReturn(null);
+
+        assertNull(userService.get());
+    }
+
+    @Test
     void validUpdateTest() {
         when(databaseContext.getUser(user.getId())).thenReturn(user);
 
@@ -103,6 +158,14 @@ class UserServiceTest {
     void updateThrowsWhenUserIsNull() {
         assertThrows(ValidationException.class,
                 () -> userService.update(null));
+    }
+
+    @Test
+    void updateThrowsWhenUserDoesNotExist() {
+        when(databaseContext.getUser(user.getId())).thenReturn(null);
+
+        assertThrows(ElementNotFoundException.class,
+                () -> userService.update(user));
     }
 
     @Test
