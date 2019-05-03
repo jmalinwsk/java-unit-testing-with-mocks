@@ -7,6 +7,8 @@ import models.Hotel;
 import models.Reservation;
 import models.Room;
 import models.User;
+import org.easymock.EasyMock;
+import org.easymock.EasyMockSupport;
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.junit.jupiter.api.*;
@@ -15,14 +17,21 @@ import org.mockito.Mock;
 
 import java.util.HashMap;
 
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class RoomServiceTest {
     @Mock
-    private IDatabaseContext databaseContext;
+    private IDatabaseContext databaseContextMockito;
     @InjectMocks
-    private RoomService roomService;
+    private RoomService roomServiceMockito;
+
+    private EasyMockSupport easyMockSupport;
+    @org.easymock.Mock
+    private IDatabaseContext databaseContextEasyMock;
+    private RoomService roomServiceEasyMock;
 
     private Hotel hotel;
     private Room room1;
@@ -31,8 +40,11 @@ class RoomServiceTest {
 
     @BeforeEach
     public void init() {
-        databaseContext = mock(IDatabaseContext.class);
-        roomService = new RoomService(databaseContext);
+        easyMockSupport = new EasyMockSupport();
+        databaseContextEasyMock = EasyMock.mock(IDatabaseContext.class);
+        roomServiceEasyMock = new RoomService(databaseContextEasyMock);
+        databaseContextMockito = mock(IDatabaseContext.class);
+        roomServiceMockito = new RoomService(databaseContextMockito);
         hotel = new Hotel(1, "Sample name", new LocalTime(7), new LocalTime(22));
         room1 = new Room(1, hotel, 400, 3);
         room2 = new Room(2, hotel, 202, 2);
@@ -43,7 +55,7 @@ class RoomServiceTest {
     @DisplayName("validation of room1" +
             "(returns false because of null argument")
     public void roomValidation2Test() {
-        assertFalse(roomService.roomValidation(null));
+        assertFalse(roomServiceMockito.roomValidation(null));
     }
 
     @Test
@@ -51,7 +63,7 @@ class RoomServiceTest {
             "(returns false because of negative number of room1)")
     public void roomValidation3Test() {
         room1.setNumberOfRoom(-1);
-        assertFalse(roomService.roomValidation(room1));
+        assertFalse(roomServiceMockito.roomValidation(room1));
     }
 
     @Test
@@ -60,7 +72,7 @@ class RoomServiceTest {
             "in hotel room1)")
     public void roomValidation4Test() {
         room1.setAmountOfPeople(-1);
-        assertFalse(roomService.roomValidation(room1));
+        assertFalse(roomServiceMockito.roomValidation(room1));
     }
 
     @Test
@@ -69,7 +81,7 @@ class RoomServiceTest {
             "in hotel room1)")
     public void roomValidation5Test() {
         room1.setAmountOfPeople(0);
-        assertFalse(roomService.roomValidation(room1));
+        assertFalse(roomServiceMockito.roomValidation(room1));
     }
 
     @Test
@@ -77,15 +89,15 @@ class RoomServiceTest {
             "(returns false because hotel is null)")
     public void roomValidation6Test() {
         room1.setHotel(null);
-        assertFalse(roomService.roomValidation(room1));
+        assertFalse(roomServiceMockito.roomValidation(room1));
     }
 
     @Test
     public void validAddTest() {
-        when(databaseContext.getHotels()).thenReturn(hotelList);
-        when(databaseContext.getNextRoomId()).thenReturn(room1.getId());
+        when(databaseContextMockito.getHotels()).thenReturn(hotelList);
+        when(databaseContextMockito.getNextRoomId()).thenReturn(room1.getId());
 
-        assertDoesNotThrow(() -> roomService.add(room1));
+        assertDoesNotThrow(() -> roomServiceMockito.add(room1));
     }
 
     @Test
@@ -93,54 +105,54 @@ class RoomServiceTest {
         room1.setAmountOfPeople(-5);
 
         assertThrows(ValidationException.class,
-                        () -> roomService.add(room1));
+                        () -> roomServiceMockito.add(room1));
     }
 
     @Test
     public void addThrowsWhenHotelIsNotFound() {
-        when(databaseContext.getHotels()).thenReturn(new HashMap<>());
+        when(databaseContextMockito.getHotels()).thenReturn(new HashMap<>());
 
         assertThrows(ElementNotFoundException.class,
-                () -> roomService.add(room1));
+                () -> roomServiceMockito.add(room1));
     }
 
     @Test
     public void addThrowsWhenRoomIsNull() {
         assertThrows(ValidationException.class,
-                () -> roomService.add(null));
+                () -> roomServiceMockito.add(null));
     }
 
     @Test
     public void validGetTest() throws ElementNotFoundException {
-        when(databaseContext.getRoom(room1.getId())).thenReturn(room1);
+        when(databaseContextMockito.getRoom(room1.getId())).thenReturn(room1);
 
-        Room result = roomService.get(room1.getId());
+        Room result = roomServiceMockito.get(room1.getId());
 
         assertEquals(room1, result);
     }
 
     @Test
     public void getThrowsWhenIdIsZero() {
-        when(databaseContext.getRoom(0)).thenReturn(null);
+        when(databaseContextMockito.getRoom(0)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> roomService.get(0));
+                () -> roomServiceMockito.get(0));
     }
 
     @Test
     public void getThrowsWhenIdIsNegative() {
-        when(databaseContext.getRoom(-1)).thenReturn(null);
+        when(databaseContextMockito.getRoom(-1)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> roomService.get(-1));
+                () -> roomServiceMockito.get(-1));
     }
 
     @Test
     public void getThrowsWhenRoomIsNotFound() {
-        when(databaseContext.getRoom(2)).thenReturn(null);
+        when(databaseContextMockito.getRoom(2)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> roomService.get(2));
+                () -> roomServiceMockito.get(2));
     }
 
     @Test
@@ -148,23 +160,23 @@ class RoomServiceTest {
         HashMap<Integer, Room> roomList = new HashMap<Integer, Room>() {{
            put(1, room1);
         }};
-        when(databaseContext.getRooms()).thenReturn(roomList);
+        when(databaseContextMockito.getRooms()).thenReturn(roomList);
 
-        assertEquals(roomList, roomService.get());
+        assertEquals(roomList, roomServiceMockito.get());
     }
 
     @Test
     public void getAllWhenListIsEmpty() {
-        when(databaseContext.getRooms()).thenReturn(new HashMap<>());
+        when(databaseContextMockito.getRooms()).thenReturn(new HashMap<>());
 
-        assertEquals(new HashMap<>(), roomService.get());
+        assertEquals(new HashMap<>(), roomServiceMockito.get());
     }
 
     @Test
     public void validUpdateTest() {
-        when(databaseContext.getRoom(room1.getId())).thenReturn(room1);
+        when(databaseContextMockito.getRoom(room1.getId())).thenReturn(room1);
 
-        assertDoesNotThrow(() -> roomService.update(room1));
+        assertDoesNotThrow(() -> roomServiceMockito.update(room1));
     }
 
     @Test
@@ -172,52 +184,52 @@ class RoomServiceTest {
         room1.setAmountOfPeople(-5);
 
         assertThrows(ValidationException.class,
-                        () -> roomService.update(room1));
+                        () -> roomServiceMockito.update(room1));
     }
 
     @Test
     public void updateThrowsWhenRoomIsNull() {
         assertThrows(ValidationException.class,
-                () -> roomService.update(null));
+                () -> roomServiceMockito.update(null));
     }
 
     @Test
     public void updateThrowsWhenRoomIsNotFound() {
-        when(databaseContext.getRoom(room1.getId())).thenReturn(null);
+        when(databaseContextMockito.getRoom(room1.getId())).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> roomService.update(room1));
+                () -> roomServiceMockito.update(room1));
     }
 
     @Test
     public void validDeleteTest() {
-        when(databaseContext.getRoom(room1.getId())).thenReturn(room1);
+        when(databaseContextMockito.getRoom(room1.getId())).thenReturn(room1);
 
-        assertDoesNotThrow(() -> roomService.delete(room1.getId()));
+        assertDoesNotThrow(() -> roomServiceMockito.delete(room1.getId()));
     }
 
     @Test
     public void deleteThrowsWhenIdIsZero() {
-        when(databaseContext.getRoom(0)).thenReturn(null);
+        when(databaseContextMockito.getRoom(0)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> roomService.delete(0));
+                () -> roomServiceMockito.delete(0));
     }
 
     @Test
     public void deleteThrowsWhenIdIsNegative() {
-        when(databaseContext.getRoom(-1)).thenReturn(null);
+        when(databaseContextMockito.getRoom(-1)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> roomService.delete(-1));
+                () -> roomServiceMockito.delete(-1));
     }
 
     @Test
     public void deleteThrowsWhenRoomIsNotFound() {
-        when(databaseContext.getRoom(2)).thenReturn(null);
+        when(databaseContextMockito.getRoom(2)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> roomService.delete(2));
+                () -> roomServiceMockito.delete(2));
     }
 
     @Test
@@ -225,41 +237,65 @@ class RoomServiceTest {
         HashMap<Integer, Room> rooms = new HashMap<>();
         rooms.put(1, room1);
         rooms.put(2, room2);
-        when(databaseContext.getRooms()).thenReturn(rooms);
-        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>() {{
+        expect(databaseContextEasyMock.getRooms()).andReturn(rooms);
+        expect(databaseContextEasyMock.getReservations()).andReturn(new HashMap<Integer, Reservation>() {{
             put(1, new Reservation(1, new DateTime(2019, 1, 1, 11, 0),
                     new DateTime(2019, 1, 2, 11, 0), new User(), room2));
         }});
+        replay(databaseContextEasyMock);
 
         HashMap<Integer, Room> result = new HashMap<>();
         result.put(1, room1);
 
-        assertEquals(result, roomService.getFreeRooms());
+        assertEquals(result, roomServiceEasyMock.getFreeRooms());
     }
 
     @Test
     public void getFreeRoomsWhenAllRoomsAreFree() {
         HashMap<Integer, Room> rooms = new HashMap<>();
         rooms.put(1, room1);
-        when(databaseContext.getRooms()).thenReturn(rooms);
-        when(databaseContext.getReservations()).thenReturn(new HashMap<>());
+        expect(databaseContextEasyMock.getRooms()).andReturn(rooms);
+        expect(databaseContextEasyMock.getReservations()).andReturn(new HashMap<>());
+        replay(databaseContextEasyMock);
 
-        assertEquals(rooms, roomService.getFreeRooms());
+        assertEquals(rooms, roomServiceEasyMock.getFreeRooms());
     }
 
     @Test
     public void getFreeRoomsWhenThereAreNoRooms() {
         HashMap<Integer, Room> roomList = new HashMap<>();
-        when(databaseContext.getRooms()).thenReturn(roomList);
-        when(databaseContext.getReservations()).thenReturn(new HashMap<>());
+        expect(databaseContextEasyMock.getRooms()).andReturn(roomList);
+        expect(databaseContextEasyMock.getReservations()).andReturn(new HashMap<>());
+        replay(databaseContextEasyMock);
 
-        assertEquals(new HashMap<Integer, Room>(), roomService.getFreeRooms());
+        assertEquals(new HashMap<Integer, Room>(), roomServiceEasyMock.getFreeRooms());
+    }
+
+    @Test
+    public void getFreeRoomsOfSpecificHotelWhenAllRoomsAreFree() {
+        HashMap<Integer, Room> rooms = new HashMap<>();
+        rooms.put(1, room1);
+        expect(databaseContextEasyMock.getRooms()).andReturn(rooms);
+        expect(databaseContextEasyMock.getReservations()).andReturn(new HashMap<>());
+        replay(databaseContextEasyMock);
+
+        assertEquals(rooms, roomServiceEasyMock.getFreeRooms(hotel));
+    }
+
+    @Test
+    public void getFreeRoomsOfSpecificHotelWhenThereAreNoRooms() {
+        HashMap<Integer, Room> roomList = new HashMap<>();
+        expect(databaseContextEasyMock.getRooms()).andReturn(roomList);
+        expect(databaseContextEasyMock.getReservations()).andReturn(new HashMap<>());
+        replay(databaseContextEasyMock);
+
+        assertEquals(new HashMap<Integer, Room>(), roomServiceEasyMock.getFreeRooms(hotel));
     }
 
     @AfterEach
     public void cleanup() {
-        databaseContext = null;
-        roomService = null;
+        databaseContextMockito = null;
+        roomServiceMockito = null;
         hotel = null;
         room1 = null;
         room2 = null;

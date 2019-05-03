@@ -5,7 +5,9 @@ import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
 import models.Hotel;
 import models.Reservation;
+import org.joda.time.LocalTime;
 
+import java.time.DateTimeException;
 import java.util.HashMap;
 
 public class HotelService implements IHotelService {
@@ -77,5 +79,19 @@ public class HotelService implements IHotelService {
                     hotelsWithFreeRooms.remove(hotel.getId());
 
         return hotelsWithFreeRooms;
+    }
+
+    @Override
+    public void changeOpenHours(Integer id, LocalTime openHour, LocalTime closeHour) throws ElementNotFoundException {
+        if(id != null &&
+            openHour != null &&
+            closeHour != null) {
+            if(openHour.isBefore(closeHour)) {
+                if(databaseContext.getHotels().containsKey(id)) {
+                    databaseContext.getHotel(id).setOpenHour(openHour);
+                    databaseContext.getHotel(id).setCloseHour(closeHour);
+                } else throw new ElementNotFoundException("Hotel with given id is not found!");
+            } else throw new DateTimeException("Open hour is before close hour!");
+        } else throw new IllegalArgumentException();
     }
 }

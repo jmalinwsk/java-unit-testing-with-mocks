@@ -4,28 +4,38 @@ import database.IDatabaseContext;
 import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
 import models.User;
+import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import java.util.HashMap;
 
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class UserServiceTest {
     @Mock
-    private IDatabaseContext databaseContext;
+    private IDatabaseContext databaseContextMockito;
     @InjectMocks
-    private UserService userService;
+    private UserService userServiceMockito;
+
+    private EasyMockSupport easyMockSupport;
+    private IDatabaseContext databaseContextEasyMock;
+    private UserService userServiceEasyMock;
 
     private User user;
     private HashMap<Integer, User> userList;
 
     @BeforeEach
     public void init() {
-        databaseContext = mock(IDatabaseContext.class);
-        userService = new UserService(databaseContext);
+        easyMockSupport = new EasyMockSupport();
+        databaseContextMockito = mock(IDatabaseContext.class);
+        userServiceMockito = new UserService(databaseContextMockito);
+        databaseContextEasyMock = easyMockSupport.mock(IDatabaseContext.class);
+        userServiceEasyMock = new UserService(databaseContextEasyMock);
 
         user = new User(1, "sample@email.com",
                 "90b94d224ee82c837143ea6f0308c596f0142612678a036c65041b246d52df22");
@@ -35,7 +45,7 @@ class UserServiceTest {
     @Test
     @DisplayName("validation of user (valid)")
     public void userValidationTest() {
-        boolean result = userService.userValidation(user);
+        boolean result = userServiceMockito.userValidation(user);
         assertTrue(result);
     }
 
@@ -43,7 +53,7 @@ class UserServiceTest {
     @DisplayName("validation of user " +
             "(returns false because of null argument)")
     public void userValidation2Test() {
-        assertFalse(userService.userValidation(null));
+        assertFalse(userServiceMockito.userValidation(null));
     }
 
     @Test
@@ -51,7 +61,7 @@ class UserServiceTest {
             "(returns false because email is an empty string")
     public void userValidation3Test() {
         user.setEmail("");
-        assertFalse(userService.userValidation(user));
+        assertFalse(userServiceMockito.userValidation(user));
     }
 
     @Test
@@ -59,7 +69,7 @@ class UserServiceTest {
             "(returns false because email is null")
     public void userValidation4Test() {
         user.setEmail(null);
-        assertFalse(userService.userValidation(user));
+        assertFalse(userServiceMockito.userValidation(user));
     }
 
     @Test
@@ -67,14 +77,14 @@ class UserServiceTest {
             "(returns false because email is invalid")
     public void userValidation5Test() {
         user.setEmail("invalid email");
-        assertFalse(userService.userValidation(user));
+        assertFalse(userServiceMockito.userValidation(user));
     }
 
     @Test
     public void validAddTest() {
-        when(databaseContext.getNextUserId()).thenReturn(user.getId());
+        when(databaseContextMockito.getNextUserId()).thenReturn(user.getId());
 
-        assertDoesNotThrow(() -> userService.add(user));
+        assertDoesNotThrow(() -> userServiceMockito.add(user));
     }
 
     @Test
@@ -83,45 +93,45 @@ class UserServiceTest {
 
         assertAll(
                 () -> assertThrows(ValidationException.class,
-                        () -> userService.add(user))
+                        () -> userServiceMockito.add(user))
         );
     }
 
     @Test
     public void addThrowsWhenUserIsNull() {
         assertThrows(ValidationException.class,
-                () -> userService.add(null));
+                () -> userServiceMockito.add(null));
     }
 
     @Test
     public void validGetTest() throws ElementNotFoundException {
-        when(databaseContext.getUser(1)).thenReturn(user);
+        when(databaseContextMockito.getUser(1)).thenReturn(user);
 
-        assertEquals(user, userService.get(1));
+        assertEquals(user, userServiceMockito.get(1));
     }
 
     @Test
     public void getThrowsWhenIdIsZero() {
-        when(databaseContext.getUser(0)).thenReturn(null);
+        when(databaseContextMockito.getUser(0)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> userService.get(0));
+                () -> userServiceMockito.get(0));
     }
 
     @Test
     public void getThrowsWhenIdIsNegative() {
-        when(databaseContext.getUser(-1)).thenReturn(null);
+        when(databaseContextMockito.getUser(-1)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> userService.get(-1));
+                () -> userServiceMockito.get(-1));
     }
 
     @Test
     public void getReturnsNullWhenUserIsNotFound() {
-        when(databaseContext.getUser(2)).thenReturn(null);
+        when(databaseContextMockito.getUser(2)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> userService.get(2));
+                () -> userServiceMockito.get(2));
     }
 
     @Test
@@ -129,23 +139,23 @@ class UserServiceTest {
         HashMap<Integer, User> userList = new HashMap<Integer, User>() {{
             put(1, user);
         }};
-        when(databaseContext.getUsers()).thenReturn(userList);
+        when(databaseContextMockito.getUsers()).thenReturn(userList);
 
-        assertEquals(userList, userService.get());
+        assertEquals(userList, userServiceMockito.get());
     }
 
     @Test
     public void getAllWhenListIsNull() {
-        when(databaseContext.getUsers()).thenReturn(null);
+        when(databaseContextMockito.getUsers()).thenReturn(null);
 
-        assertNull(userService.get());
+        assertNull(userServiceMockito.get());
     }
 
     @Test
     public void validUpdateTest() {
-        when(databaseContext.getUser(user.getId())).thenReturn(user);
+        when(databaseContextMockito.getUser(user.getId())).thenReturn(user);
 
-        assertDoesNotThrow(() -> userService.update(user));
+        assertDoesNotThrow(() -> userServiceMockito.update(user));
     }
 
     @Test
@@ -153,72 +163,74 @@ class UserServiceTest {
         user.setEmail("sample email");
 
         assertThrows(ValidationException.class,
-                () -> userService.update(user));
+                () -> userServiceMockito.update(user));
     }
 
     @Test
     public void updateThrowsWhenUserIsNull() {
         assertThrows(ValidationException.class,
-                () -> userService.update(null));
+                () -> userServiceMockito.update(null));
     }
 
     @Test
     public void updateThrowsWhenUserDoesNotExist() {
-        when(databaseContext.getUser(user.getId())).thenReturn(null);
+        when(databaseContextMockito.getUser(user.getId())).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> userService.update(user));
+                () -> userServiceMockito.update(user));
     }
 
     @Test
     public void validDeleteTest() {
-        when(databaseContext.getUser(user.getId())).thenReturn(user);
+        when(databaseContextMockito.getUser(user.getId())).thenReturn(user);
 
-        assertDoesNotThrow(() -> userService.delete(user.getId()));
+        assertDoesNotThrow(() -> userServiceMockito.delete(user.getId()));
     }
 
     @Test
     public void deleteThrowsWhenIdIsZero() {
-        when(databaseContext.getUser(0)).thenReturn(null);
+        when(databaseContextMockito.getUser(0)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> userService.delete(0));
+                () -> userServiceMockito.delete(0));
     }
 
     @Test
     public void deleteThrowsWhenIdIsNegative() {
-        when(databaseContext.getUser(-1)).thenReturn(null);
+        when(databaseContextMockito.getUser(-1)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> userService.delete(-1));
+                () -> userServiceMockito.delete(-1));
     }
 
     @Test
     public void deleteThrowsWhenUserIsNotFound() {
-        when(databaseContext.getUser(2)).thenReturn(null);
+        when(databaseContextMockito.getUser(2)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> userService.delete(2));
+                () -> userServiceMockito.delete(2));
     }
 
     @Test
     public void properLoginTest() {
-        when(databaseContext.getUsers()).thenReturn(userList);
+        expect(databaseContextEasyMock.getUsers()).andReturn(userList);
+        replay(databaseContextEasyMock);
 
-        assertTrue(userService.login(user.getEmail(), user.getPassword()));
+        assertTrue(userServiceEasyMock.login(user.getEmail(), user.getPassword()));
     }
 
     @Test
     public void failedLoginTest() {
-        when(databaseContext.getUsers()).thenReturn(new HashMap<>());
+        expect(databaseContextEasyMock.getUsers()).andReturn(new HashMap<>());
+        replay(databaseContextEasyMock);
 
-        assertFalse(userService.login(user.getEmail(), user.getPassword()));
+        assertFalse(userServiceEasyMock.login(user.getEmail(), user.getPassword()));
     }
 
     @AfterEach
     public void cleanup() {
-        databaseContext = null;
-        userService = null;
+        databaseContextMockito = null;
+        userServiceMockito = null;
         user = null;
     }
 }

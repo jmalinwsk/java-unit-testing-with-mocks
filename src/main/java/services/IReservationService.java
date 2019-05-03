@@ -13,5 +13,6 @@ public interface IReservationService {
     HashMap<Integer, Reservation> get();
     void update(Reservation reservation) throws ValidationException, ElementNotFoundException;
     void delete(int id) throws ElementNotFoundException;
+
     HashMap<Integer, Reservation> getReservationsOfUser(User user);
 }

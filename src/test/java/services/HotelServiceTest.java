@@ -7,6 +7,7 @@ import models.Hotel;
 import org.joda.time.LocalTime;
 import org.junit.jupiter.api.*;
 
+import java.time.DateTimeException;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -217,6 +218,43 @@ class HotelServiceTest {
     @Test
     public void getHotelsWithFreeRoomsWhenThereAreNotSuchHotels() {
         assertEquals(new HashMap<Integer, Hotel>(), hotelService.getHotelsWithFreeRooms());
+    }
+
+    @Test
+    public void validChangeOfOpenHours() throws ValidationException {
+        hotelService.add(hotel);
+
+        assertDoesNotThrow(() -> hotelService.changeOpenHours(1, new LocalTime(5), new LocalTime(23)));
+    }
+
+    @Test
+    public void changeOfOpenHoursThrowsWhenHotelIsNotFound() {
+        assertThrows(ElementNotFoundException.class,
+                () -> hotelService.changeOpenHours(1, new LocalTime(5), new LocalTime(23)));
+    }
+
+    @Test
+    public void changeOfOpenHoursThrowsWhenIdIsNull() {
+        assertThrows(IllegalArgumentException.class,
+                () -> hotelService.changeOpenHours(null, new LocalTime(5), new LocalTime(23)));
+    }
+
+    @Test
+    public void changeOfOpenHoursThrowsWhenOpenHourIsNull() {
+        assertThrows(IllegalArgumentException.class,
+                () -> hotelService.changeOpenHours(1, null, new LocalTime(23)));
+    }
+
+    @Test
+    public void changeOfOpenHoursThrowsWhenCloseHourIsNull() {
+        assertThrows(IllegalArgumentException.class,
+                () -> hotelService.changeOpenHours(1, new LocalTime(5), null));
+    }
+
+    @Test
+    public void changeOfOpenHoursThrowsWhenOpenHourIsAfterCloseHour() {
+        assertThrows(DateTimeException.class,
+                () -> hotelService.changeOpenHours(1, new LocalTime(11), new LocalTime(10)));
     }
 
     @AfterEach

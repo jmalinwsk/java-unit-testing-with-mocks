@@ -7,6 +7,7 @@ import models.Hotel;
 import models.Reservation;
 import models.Room;
 import models.User;
+import org.easymock.EasyMockSupport;
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.junit.jupiter.api.*;
@@ -16,14 +17,20 @@ import org.mockito.Mock;
 import java.time.DateTimeException;
 import java.util.HashMap;
 
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ReservationServiceTest {
     @Mock
-    private IDatabaseContext databaseContext;
+    private IDatabaseContext databaseContextMockito;
     @InjectMocks
-    private ReservationService reservationService;
+    private ReservationService reservationServiceMockito;
+
+    private EasyMockSupport easyMockSupport;
+    private IDatabaseContext databaseContextEasyMock;
+    private ReservationService reservationServiceEasyMock;
 
     private Hotel hotel1;
     private Hotel hotel2;
@@ -38,8 +45,11 @@ class ReservationServiceTest {
 
     @BeforeEach
     public void init() {
-        databaseContext = mock(IDatabaseContext.class);
-        reservationService = new ReservationService(databaseContext);
+        easyMockSupport = new EasyMockSupport();
+        databaseContextMockito = mock(IDatabaseContext.class);
+        reservationServiceMockito = new ReservationService(databaseContextMockito);
+        databaseContextEasyMock = easyMockSupport.mock(IDatabaseContext.class);
+        reservationServiceEasyMock = new ReservationService(databaseContextEasyMock);
         hotel1 = new Hotel(1, "Sample name", new LocalTime(8), new LocalTime(23));
         hotel2 = new Hotel(2, "Sample name 2", new LocalTime(6), new LocalTime(20));
         room1 = new Room(1, hotel1, 200, 2);
@@ -64,7 +74,7 @@ class ReservationServiceTest {
     @Test
     @DisplayName("validation of reservation (valid)")
     public void reservationValidationTest() {
-        boolean result = reservationService.reservationValidation(reservation1);
+        boolean result = reservationServiceMockito.reservationValidation(reservation1);
         assertTrue(result);
     }
 
@@ -72,7 +82,7 @@ class ReservationServiceTest {
     @DisplayName("validation of reservation " +
             "(returns false because of null argument)")
     public void reservationValidation2Test() {
-        assertFalse(reservationService.reservationValidation(null));
+        assertFalse(reservationServiceMockito.reservationValidation(null));
     }
 
     @Test
@@ -80,7 +90,7 @@ class ReservationServiceTest {
             "(returns false because start date is after end date)")
     public void reservationValidation3Test() {
         reservation1.setEndDate(new DateTime(2019, 1, 1, 11, 0));
-        assertFalse(reservationService.reservationValidation(reservation1));
+        assertFalse(reservationServiceMockito.reservationValidation(reservation1));
     }
 
     @Test
@@ -88,7 +98,7 @@ class ReservationServiceTest {
             "(returns false because user in reservation is null)")
     public void reservationValidation4Test() {
         reservation1.setUser(null);
-        assertFalse(reservationService.reservationValidation(reservation1));
+        assertFalse(reservationServiceMockito.reservationValidation(reservation1));
     }
 
     @Test
@@ -96,7 +106,7 @@ class ReservationServiceTest {
             "(returns false because room in reservation is null)")
     public void reservationValidation5Test() {
         reservation1.setRoom(null);
-        assertFalse(reservationService.reservationValidation(reservation1));
+        assertFalse(reservationServiceMockito.reservationValidation(reservation1));
     }
 
     @Test
@@ -105,26 +115,26 @@ class ReservationServiceTest {
     public void reservationValidation6Test() {
         reservation1.setUser(null);
         reservation1.setRoom(null);
-        assertFalse(reservationService.reservationValidation(reservation1));
+        assertFalse(reservationServiceMockito.reservationValidation(reservation1));
     }
 
     @Test
     public void validAddTest() {
-        when(databaseContext.getUsers()).thenReturn(
+        when(databaseContextMockito.getUsers()).thenReturn(
                 new HashMap<Integer, User>() {{
                     put(1, user1);
                     put(2, user2);
                     put(3, user3);
                 }}
         );
-        when(databaseContext.getRooms()).thenReturn(
+        when(databaseContextMockito.getRooms()).thenReturn(
                 new HashMap<Integer, Room>() {{
                     put(1, room1);
                     put(2, room2);
                 }}
         );
 
-        assertDoesNotThrow(() -> reservationService.add(reservation1));
+        assertDoesNotThrow(() -> reservationServiceMockito.add(reservation1));
     }
 
     @Test
@@ -132,7 +142,7 @@ class ReservationServiceTest {
         reservation1.setEndDate(new DateTime(2019, 1, 1, 11, 0));
 
         assertThrows(ValidationException.class,
-                () -> reservationService.add(reservation1));
+                () -> reservationServiceMockito.add(reservation1));
     }
 
     @Test
@@ -140,192 +150,192 @@ class ReservationServiceTest {
         reservation1.setRoom(null);
 
         assertThrows(ValidationException.class,
-                () -> reservationService.add(reservation1));
+                () -> reservationServiceMockito.add(reservation1));
     }
 
     @Test
     public void addThrowsWhenUserIsNotFound() {
-        when(databaseContext.getUsers()).thenReturn(new HashMap<>());
+        when(databaseContextMockito.getUsers()).thenReturn(new HashMap<>());
 
         assertThrows(ElementNotFoundException.class,
-                () -> reservationService.add(reservation1));
+                () -> reservationServiceMockito.add(reservation1));
     }
 
     @Test
     public void addThrowsWhenRoomIsNotFound() {
-        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
-        when(databaseContext.getRooms()).thenReturn(new HashMap<>());
+        when(databaseContextMockito.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
+        when(databaseContextMockito.getRooms()).thenReturn(new HashMap<>());
 
         assertThrows(ElementNotFoundException.class,
-                () -> reservationService.add(reservation1));
+                () -> reservationServiceMockito.add(reservation1));
     }
 
     @Test
     public void addThrowsWhenReservationHasMinutesInDate() {
-        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
-        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
+        when(databaseContextMockito.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
+        when(databaseContextMockito.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
         reservation1.setEndDate(new DateTime(2021, 1, 1, 11, 11));
 
         assertThrows(DateTimeException.class,
-                () -> reservationService.add(reservation1));
+                () -> reservationServiceMockito.add(reservation1));
     }
 
     @Test
     public void addWhenThereAreOtherReservations() {
-        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
-        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
-        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+        when(databaseContextMockito.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
+        when(databaseContextMockito.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
+        when(databaseContextMockito.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
             {{ put(1, reservation2); }});
 
-        assertDoesNotThrow(() -> reservationService.add(reservation1));
+        assertDoesNotThrow(() -> reservationServiceMockito.add(reservation1));
     }
 
     @Test
     public void addThrowsWhenRoomIsReservedByOtherPersonInTheSameTime() {
-        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
+        when(databaseContextMockito.getUsers()).thenReturn(new HashMap<Integer, User>() {{
             put(1, user1);
             put(2, user2);
             put(3, user3);
         }});
-        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
+        when(databaseContextMockito.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
             put(1, room1);
             put(2, room2);
         }});
-        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+        when(databaseContextMockito.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
         {{ put(1, reservation1); }});
 
         Reservation newReservation = new Reservation(3, reservation1.getStartDate(), reservation1.getEndDate(),
                 user1, room1);
 
         assertThrows(DateTimeException.class,
-                () -> reservationService.add(newReservation));
+                () -> reservationServiceMockito.add(newReservation));
     }
 
     @Test
     public void addThrowsWhenRoomIsReservedByOtherPersonInTheSameTimeAndOtherRoom() {
-        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
+        when(databaseContextMockito.getUsers()).thenReturn(new HashMap<Integer, User>() {{
             put(1, user1);
             put(2, user2);
             put(3, user3);
         }});
-        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
+        when(databaseContextMockito.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
             put(1, room1);
             put(2, room2);
         }});
-        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+        when(databaseContextMockito.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
         {{ put(1, reservation1); }});
 
         Reservation newReservation = new Reservation(3, reservation1.getStartDate(), reservation1.getEndDate(),
                 user1, room2);
 
-        assertDoesNotThrow(() -> reservationService.add(newReservation));
+        assertDoesNotThrow(() -> reservationServiceMockito.add(newReservation));
 
     }
 
     @Test
     public void addThrowsWhenRoomIsReservedByOtherPersonInSimilarTime() {
-        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
+        when(databaseContextMockito.getUsers()).thenReturn(new HashMap<Integer, User>() {{
             put(1, user1);
             put(2, user2);
             put(3, user3);
         }});
-        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
+        when(databaseContextMockito.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
             put(1, room1);
             put(2, room2);
         }});
-        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+        when(databaseContextMockito.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
         {{ put(1, reservation1); }});
 
         Reservation newReservation = new Reservation(3, new DateTime(2019, 5, 4, 11, 0),
                 new DateTime(2019, 5, 6, 11, 0), user1, room1);
 
         assertThrows(DateTimeException.class,
-                () -> reservationService.add(newReservation));
+                () -> reservationServiceMockito.add(newReservation));
     }
 
     @Test
     public void addThrowsWhenRoomIsReservedByOtherPersonInSimilarTime2() {
-        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
+        when(databaseContextMockito.getUsers()).thenReturn(new HashMap<Integer, User>() {{
             put(1, user1);
             put(2, user2);
             put(3, user3);
         }});
-        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
+        when(databaseContextMockito.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
             put(1, room1);
             put(2, room2);
         }});
-        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+        when(databaseContextMockito.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
         {{ put(1, reservation1); }});
 
         Reservation newReservation = new Reservation(3, new DateTime(2019, 5, 5, 20, 0),
                 new DateTime(2019, 5, 6, 8, 0), user1, room1);
 
         assertThrows(DateTimeException.class,
-                () -> reservationService.add(newReservation));
+                () -> reservationServiceMockito.add(newReservation));
     }
 
     @Test
     public void validGetTest() throws ElementNotFoundException {
-        when(databaseContext.getReservation(reservation1.getId())).thenReturn(reservation1);
+        when(databaseContextMockito.getReservation(reservation1.getId())).thenReturn(reservation1);
 
-        assertEquals(reservation1, reservationService.get(reservation1.getId()));
+        assertEquals(reservation1, reservationServiceMockito.get(reservation1.getId()));
     }
 
     @Test
     public void getThrowsWhenIdIsZero() {
-        when(databaseContext.getReservation(0)).thenReturn(null);
+        when(databaseContextMockito.getReservation(0)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> reservationService.get(0));
+                () -> reservationServiceMockito.get(0));
     }
 
     @Test
     public void getThrowsWhenIdIsNegative() {
-        when(databaseContext.getReservation(-1)).thenReturn(null);
+        when(databaseContextMockito.getReservation(-1)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> reservationService.get(-1));
+                () -> reservationServiceMockito.get(-1));
     }
 
     @Test
     public void getReturnsNullWhenReservationIsNotFound() {
-        when(databaseContext.getReservation(4)).thenReturn(null);
+        when(databaseContextMockito.getReservation(4)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> reservationService.get(4));
+                () -> reservationServiceMockito.get(4));
     }
 
     @Test
     public void validGetAllTest() {
-        when(databaseContext.getReservations()).thenReturn(
+        when(databaseContextMockito.getReservations()).thenReturn(
                 new HashMap<Integer, Reservation>() {{ put(1, reservation1); }});
 
-        assertEquals(new HashMap<Integer, Reservation>() {{ put(1, reservation1); }}, reservationService.get());
+        assertEquals(new HashMap<Integer, Reservation>() {{ put(1, reservation1); }}, reservationServiceMockito.get());
     }
 
     @Test
     public void getAllWhenListIsNull() {
-        when(databaseContext.getReservations()).thenReturn(new HashMap<>());
+        when(databaseContextMockito.getReservations()).thenReturn(new HashMap<>());
 
-        assertEquals(new HashMap<>(), reservationService.get());
+        assertEquals(new HashMap<>(), reservationServiceMockito.get());
     }
 
     @Test
     public void validUpdateTest() {
-        when(databaseContext.getUsers()).thenReturn(
+        when(databaseContextMockito.getUsers()).thenReturn(
                 new HashMap<Integer, User>() {{
                     put(1, user1);
                     put(2, user2);
                     put(3, user3);
                 }}
         );
-        when(databaseContext.getRooms()).thenReturn(
+        when(databaseContextMockito.getRooms()).thenReturn(
                 new HashMap<Integer, Room>() {{
                     put(1, room1);
                     put(2, room2);
                 }}
         );
-        when(databaseContext.getReservations()).thenReturn(
+        when(databaseContextMockito.getReservations()).thenReturn(
                 new HashMap<Integer, Reservation>() {{
                     put(1, reservation1);
                     put(2, reservation2);
@@ -334,7 +344,7 @@ class ReservationServiceTest {
         );
         reservation1.setRoom(room2);
 
-        assertDoesNotThrow(() -> reservationService.update(reservation1));
+        assertDoesNotThrow(() -> reservationServiceMockito.update(reservation1));
     }
 
     @Test
@@ -343,50 +353,50 @@ class ReservationServiceTest {
         reservation1.setEndDate(new DateTime(2018, 1, 1, 11, 0));
 
         assertThrows(ValidationException.class,
-                () -> reservationService.update(reservation1));
+                () -> reservationServiceMockito.update(reservation1));
     }
 
     @Test
     public void updateThrowsWhenReservationIsNull() {
         assertThrows(ValidationException.class,
-                () -> reservationService.update(null));
+                () -> reservationServiceMockito.update(null));
     }
 
     @Test
     public void updateThrowsWhenUserIsNotFound() {
-        when(databaseContext.getUsers()).thenReturn(new HashMap<>());
+        when(databaseContextMockito.getUsers()).thenReturn(new HashMap<>());
 
         assertThrows(ElementNotFoundException.class,
-                () -> reservationService.update(reservation1));
+                () -> reservationServiceMockito.update(reservation1));
     }
 
     @Test
     public void updateThrowsWhenRoomIsNotFound() {
-        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
-        when(databaseContext.getRooms()).thenReturn(new HashMap<>());
+        when(databaseContextMockito.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
+        when(databaseContextMockito.getRooms()).thenReturn(new HashMap<>());
 
         assertThrows(ElementNotFoundException.class,
-                () -> reservationService.update(reservation1));
+                () -> reservationServiceMockito.update(reservation1));
     }
 
     @Test
     public void updateThrowsWhenReservationHasMinutesInDate() {
-        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
-        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
+        when(databaseContextMockito.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
+        when(databaseContextMockito.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
         reservation1.setEndDate(new DateTime(2021, 1, 1, 11, 11));
 
         assertThrows(DateTimeException.class,
-                () -> reservationService.update(reservation1));
+                () -> reservationServiceMockito.update(reservation1));
     }
 
     @Test
     public void updateThrowsWhenReservationIsNotFound() {
-        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
-        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
-        when(databaseContext.getReservations()).thenReturn(new HashMap<>());
+        when(databaseContextMockito.getUsers()).thenReturn(new HashMap<Integer, User>() {{ put(1, user1); }});
+        when(databaseContextMockito.getRooms()).thenReturn(new HashMap<Integer, Room>() {{ put(1, room1); }});
+        when(databaseContextMockito.getReservations()).thenReturn(new HashMap<>());
 
         assertThrows(ElementNotFoundException.class,
-                () -> reservationService.update(reservation1));
+                () -> reservationServiceMockito.update(reservation1));
     }
 
     @Test
@@ -394,16 +404,16 @@ class ReservationServiceTest {
         Reservation newReservation = new Reservation(3, new DateTime(2019, 12, 12, 12, 0),
                 new DateTime(2019, 12, 13, 12, 0),
                 user1, room1);
-        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
+        when(databaseContextMockito.getUsers()).thenReturn(new HashMap<Integer, User>() {{
             put(1, user1);
             put(2, user2);
             put(3, user3);
         }});
-        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
+        when(databaseContextMockito.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
             put(1, room1);
             put(2, room2);
         }});
-        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+        when(databaseContextMockito.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
         {{  put(1, reservation1);
             put(2, reservation2);
             put(3, newReservation);
@@ -413,7 +423,7 @@ class ReservationServiceTest {
         newReservation.setEndDate(reservation1.getEndDate());
 
         assertThrows(DateTimeException.class,
-                () -> reservationService.update(newReservation));
+                () -> reservationServiceMockito.update(newReservation));
     }
 
     @Test
@@ -421,16 +431,16 @@ class ReservationServiceTest {
         Reservation newReservation = new Reservation(3, new DateTime(2019, 12, 12, 12, 0),
                 new DateTime(2019, 12, 13, 12, 0),
                 user1, room1);
-        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
+        when(databaseContextMockito.getUsers()).thenReturn(new HashMap<Integer, User>() {{
             put(1, user1);
             put(2, user2);
             put(3, user3);
         }});
-        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
+        when(databaseContextMockito.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
             put(1, room1);
             put(2, room2);
         }});
-        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+        when(databaseContextMockito.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
         {{  put(1, reservation1);
             put(2, reservation2);
             put(3, newReservation);
@@ -440,7 +450,7 @@ class ReservationServiceTest {
         newReservation.setEndDate(new DateTime(2019, 5, 6, 11, 0));
 
         assertThrows(DateTimeException.class,
-                () -> reservationService.update(newReservation));
+                () -> reservationServiceMockito.update(newReservation));
     }
 
     @Test
@@ -448,16 +458,16 @@ class ReservationServiceTest {
         Reservation newReservation = new Reservation(3, new DateTime(2019, 12, 12, 12, 0),
                 new DateTime(2019, 12, 13, 12, 0),
                 user1, room1);
-        when(databaseContext.getUsers()).thenReturn(new HashMap<Integer, User>() {{
+        when(databaseContextMockito.getUsers()).thenReturn(new HashMap<Integer, User>() {{
             put(1, user1);
             put(2, user2);
             put(3, user3);
         }});
-        when(databaseContext.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
+        when(databaseContextMockito.getRooms()).thenReturn(new HashMap<Integer, Room>() {{
             put(1, room1);
             put(2, room2);
         }});
-        when(databaseContext.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
+        when(databaseContextMockito.getReservations()).thenReturn(new HashMap<Integer, Reservation>()
         {{  put(1, reservation1);
             put(2, reservation2);
             put(3, newReservation);
@@ -468,75 +478,82 @@ class ReservationServiceTest {
         newReservation.setRoom(reservation1.getRoom());
 
         assertThrows(DateTimeException.class,
-                () -> reservationService.update(newReservation));
+                () -> reservationServiceMockito.update(newReservation));
     }
 
     @Test
     public void validDeleteTest() {
-        when(databaseContext.getReservation(reservation1.getId())).thenReturn(reservation1);
+        when(databaseContextMockito.getReservation(reservation1.getId())).thenReturn(reservation1);
 
-        assertDoesNotThrow(() -> reservationService.delete(reservation1.getId()));
+        assertDoesNotThrow(() -> reservationServiceMockito.delete(reservation1.getId()));
     }
 
     @Test
     public void deleteThrowsWhenIdIsZero() {
-        when(databaseContext.getReservation(0)).thenReturn(null);
+        when(databaseContextMockito.getReservation(0)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> reservationService.delete(0));
+                () -> reservationServiceMockito.delete(0));
     }
 
     @Test
     public void deleteThrowsWhenIdIsNegative() {
-        when(databaseContext.getReservation(-1)).thenReturn(null);
+        when(databaseContextMockito.getReservation(-1)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> reservationService.delete(-1));
+                () -> reservationServiceMockito.delete(-1));
     }
 
     @Test
     public void deleteThrowsWhenReservationIsNotFound() {
-        when(databaseContext.getReservation(4)).thenReturn(null);
+        when(databaseContextMockito.getReservation(4)).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class,
-                () -> reservationService.delete(4));
+                () -> reservationServiceMockito.delete(4));
     }
 
     @Test
     public void getEmptyReservationsOfUser() {
-        when(reservationService.getReservationsOfUser(user1)).thenReturn(new HashMap<>());
+        when(reservationServiceMockito.getReservationsOfUser(user1)).thenReturn(new HashMap<>());
 
-        assertEquals(new HashMap<>(), reservationService.getReservationsOfUser(user1));
+        assertEquals(new HashMap<>(), reservationServiceMockito.getReservationsOfUser(user1));
     }
 
     @Test
     public void getReservationsOfUser() {
-        when(databaseContext.getReservations()).thenReturn(
+        expect(databaseContextEasyMock.getReservations()).andReturn(
                 new HashMap<Integer, Reservation>() {{
                     put(1, reservation1);
                     put(2, reservation2);
                     put(3, reservation3);
                 }}
         );
+        replay(databaseContextEasyMock);
+
         HashMap<Integer, Reservation> list = new HashMap<Integer, Reservation>()
         {{
             put(1, reservation1);
             put(2, reservation3);
         }};
 
-        assertEquals(list, reservationService.getReservationsOfUser(user1));
+        assertEquals(list, reservationServiceEasyMock.getReservationsOfUser(user1));
     }
 
     @Test
     public void getReservationsOfUserThrowsWhenUserIsNull() {
+        expect(databaseContextEasyMock.getReservations()).andReturn(new HashMap<>());
+        replay(databaseContextEasyMock);
+
         assertThrows(IllegalArgumentException.class,
-                () -> reservationService.getReservationsOfUser(null));
+                () -> reservationServiceEasyMock.getReservationsOfUser(null));
     }
 
     @AfterEach
     public void cleanup() {
-        databaseContext = null;
-        reservationService = null;
+        databaseContextEasyMock = null;
+        reservationServiceEasyMock = null;
+        databaseContextMockito = null;
+        reservationServiceMockito = null;
         hotel1 = null;
         hotel2 = null;
         room1 = null;
