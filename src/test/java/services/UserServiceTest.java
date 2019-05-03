@@ -20,13 +20,16 @@ class UserServiceTest {
     private UserService userService;
 
     private User user;
+    private HashMap<Integer, User> userList;
 
     @BeforeEach
     public void init() {
         databaseContext = mock(IDatabaseContext.class);
         userService = new UserService(databaseContext);
 
-        user = new User(1, "sample@email.com");
+        user = new User(1, "sample@email.com",
+                "90b94d224ee82c837143ea6f0308c596f0142612678a036c65041b246d52df22");
+        userList = new HashMap<Integer, User>() {{ put(1, user); }};
     }
 
     @Test
@@ -196,6 +199,20 @@ class UserServiceTest {
 
         assertThrows(ElementNotFoundException.class,
                 () -> userService.delete(2));
+    }
+
+    @Test
+    public void properLoginTest() {
+        when(databaseContext.getUsers()).thenReturn(userList);
+
+        assertTrue(userService.login(user.getEmail(), user.getPassword()));
+    }
+
+    @Test
+    public void failedLoginTest() {
+        when(databaseContext.getUsers()).thenReturn(new HashMap<>());
+
+        assertFalse(userService.login(user.getEmail(), user.getPassword()));
     }
 
     @AfterEach

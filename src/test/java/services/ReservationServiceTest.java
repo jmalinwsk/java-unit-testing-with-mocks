@@ -44,9 +44,12 @@ class ReservationServiceTest {
         hotel2 = new Hotel(2, "Sample name 2", new LocalTime(6), new LocalTime(20));
         room1 = new Room(1, hotel1, 200, 2);
         room2 = new Room(2, hotel2, 2, 1);
-        user1 = new User(1, "test@test.com");
-        user2 = new User(2, "test2@test2.com");
-        user3 = new User(3, "test3@test3.com");
+        user1 = new User(1, "test@test.com",
+                "90b94d224ee82c837143ea6f0308c596f0142612678a036c65041b246d52df22");
+        user2 = new User(2, "test2@test2.com",
+                "f99d2fa7c0014582e2fcc0d1c4cd04d527a909753d95824b8ac4fec88639a191");
+        user3 = new User(3, "test3@test3.com",
+                "eef021ea8f0d213f5b4975f77d52061b4fb3ff5aa212106de6376da88399338f");
         reservation1 = new Reservation(1, new DateTime(2019, 5, 5, 11, 0),
                 new DateTime(2019, 5, 6, 11, 0),
                 user1, room1);

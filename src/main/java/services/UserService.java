@@ -76,4 +76,13 @@ public class UserService implements IUserService {
         } else throw new ElementNotFoundException(
                 "User with id " + id  + " is not found.");
     }
+
+    @Override
+    public boolean login(String email, String passwordHash) {
+        for(User user : databaseContext.getUsers().values()) {
+            if(user.getEmail().equals(email) && user.getPassword().equals(passwordHash))
+                    return true;
+        }
+        return false;
+    }
 }

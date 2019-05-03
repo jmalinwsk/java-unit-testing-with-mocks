@@ -12,4 +12,5 @@ public interface IUserService {
     HashMap<Integer, User> get();
     void update(User user) throws ValidationException, ElementNotFoundException;
     void delete(int id) throws ElementNotFoundException;
+    boolean login(String login, String passwordHash);
 }
