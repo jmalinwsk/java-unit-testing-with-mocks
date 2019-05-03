@@ -4,6 +4,7 @@ import database.IDatabaseContext;
 import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
 import models.Hotel;
+import models.Reservation;
 
 import java.util.HashMap;
 
@@ -64,5 +65,17 @@ public class HotelService implements IHotelService {
         if(hotel != null) {
             databaseContext.delete(hotel);
         } else throw new ElementNotFoundException(id + " is not found.");
+    }
+
+    @Override
+    public HashMap<Integer, Hotel> getHotelsWithFreeRooms() {
+        HashMap<Integer, Hotel> hotelsWithFreeRooms = databaseContext.getHotels();
+
+        for(Reservation reservation : databaseContext.getReservations().values())
+            for(Hotel hotel : hotelsWithFreeRooms.values())
+                if(reservation.getRoom().getHotel().equals(hotel))
+                    hotelsWithFreeRooms.remove(hotel.getId());
+
+        return hotelsWithFreeRooms;
     }
 }

@@ -15,7 +15,6 @@ class HotelServiceTest {
     private DatabaseContext databaseContext;
     private HotelService hotelService;
     private HashMap<Integer, Hotel> hotelList;
-
     private Hotel hotel;
 
     @BeforeEach
@@ -206,6 +205,18 @@ class HotelServiceTest {
     public void deleteThrowsWhenHotelIsNotFound() {
         assertThrows(ElementNotFoundException.class,
                 () -> hotelService.delete(2));
+    }
+
+    @Test
+    public void getHotelsWithFreeRoomsWhenThereAreSuchHotels() throws ValidationException {
+        hotelService.add(hotel);
+
+        assertEquals(hotelList, hotelService.getHotelsWithFreeRooms());
+    }
+
+    @Test
+    public void getHotelsWithFreeRoomsWhenThereAreNotSuchHotels() {
+        assertEquals(new HashMap<Integer, Hotel>(), hotelService.getHotelsWithFreeRooms());
     }
 
     @AfterEach

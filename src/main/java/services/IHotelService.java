@@ -12,4 +12,6 @@ public interface IHotelService {
     HashMap<Integer, Hotel> get();
     void update(Hotel hotel) throws ValidationException, ElementNotFoundException;
     void delete(int id) throws ElementNotFoundException;
+
+    HashMap<Integer, Hotel> getHotelsWithFreeRooms();
 }
