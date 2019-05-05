@@ -7,7 +7,6 @@ import models.Hotel;
 import models.Reservation;
 import models.Room;
 import models.User;
-import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
@@ -41,7 +40,7 @@ class RoomServiceTest {
     @BeforeEach
     public void init() {
         easyMockSupport = new EasyMockSupport();
-        databaseContextEasyMock = EasyMock.mock(IDatabaseContext.class);
+        databaseContextEasyMock = easyMockSupport.mock(IDatabaseContext.class);
         roomServiceEasyMock = new RoomService(databaseContextEasyMock);
         databaseContextMockito = mock(IDatabaseContext.class);
         roomServiceMockito = new RoomService(databaseContextMockito);
