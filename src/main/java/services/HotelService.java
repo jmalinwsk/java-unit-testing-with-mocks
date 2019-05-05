@@ -5,6 +5,7 @@ import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
 import models.Hotel;
 import models.Reservation;
+import models.Room;
 import org.joda.time.LocalTime;
 
 import java.time.DateTimeException;
@@ -93,5 +94,19 @@ public class HotelService implements IHotelService {
                 } else throw new ElementNotFoundException("Hotel with given id is not found!");
             } else throw new DateTimeException("Open hour is before close hour!");
         } else throw new IllegalArgumentException();
+    }
+
+    @Override
+    public HashMap<Integer, Room> getRooms(Hotel hotel) {
+        HashMap<Integer, Room> rooms = new HashMap<>();
+        int i = 1;
+        for (Room room : databaseContext.getRooms().values()) {
+            if (room.getHotel().getId().equals(hotel.getId())) {
+                rooms.put(i, room);
+                i++;
+            }
+        }
+
+        return rooms;
     }
 }

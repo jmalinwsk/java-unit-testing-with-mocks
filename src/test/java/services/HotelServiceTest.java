@@ -4,6 +4,7 @@ import exceptions.ElementNotFoundException;
 import exceptions.ValidationException;
 import mocks.DatabaseContext;
 import models.Hotel;
+import models.Room;
 import org.joda.time.LocalTime;
 import org.junit.jupiter.api.*;
 
@@ -255,6 +256,19 @@ class HotelServiceTest {
     public void changeOfOpenHoursThrowsWhenOpenHourIsAfterCloseHour() {
         assertThrows(DateTimeException.class,
                 () -> hotelService.changeOpenHours(1, new LocalTime(11), new LocalTime(10)));
+    }
+
+    @Test
+    public void getRoomsWhenThereAreRooms() {
+        Room room = new Room(1, hotel, 111, 1);
+        HashMap<Integer, Room> roomHashMap = new HashMap<Integer, Room>() {{ put(1, room);}};
+        databaseContext.add(room);
+        assertEquals(roomHashMap, hotelService.getRooms(hotel));
+    }
+
+    @Test
+    public void getRoomsWhenThereAreNoRooms() {
+        assertEquals(new HashMap<>(), hotelService.getRooms(hotel));
     }
 
     @AfterEach
