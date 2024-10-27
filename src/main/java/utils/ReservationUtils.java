@@ -4,7 +4,6 @@ import models.Reservation;
 
 public class ReservationUtils {
     public static boolean hasMinutesInDate(Reservation reservation) {
-        System.out.println();
         return reservation.getStartDate().getMinuteOfDay() % 60 != 0 ||
                 reservation.getEndDate().getMinuteOfDay() % 60 != 0;
     }
