@@ -47,9 +47,9 @@ public class ReservationService implements IReservationService {
 
                             String identificator = reservation.getStartDate().toString() +
                                     reservation.getEndDate().toString() +
-                                    reservation.getRoom().getNumberOfRoom() +
+                                    reservation.getRoom().getRoomNumber() +
                                     reservation.getRoom().getHotel().getName();
-                            reservation.setIdentificator(identificator);
+                            reservation.setIdentifier(identificator);
 
                             databaseContext.add(reservation);
                             return identificator;
@@ -61,9 +61,9 @@ public class ReservationService implements IReservationService {
 
                         String identificator = reservation.getStartDate().toString() +
                                 reservation.getEndDate().toString() +
-                                reservation.getRoom().getNumberOfRoom() +
+                                reservation.getRoom().getRoomNumber() +
                                 reservation.getRoom().getHotel().getName();
-                        reservation.setIdentificator(identificator);
+                        reservation.setIdentifier(identificator);
 
                         databaseContext.add(reservation);
                         return identificator;

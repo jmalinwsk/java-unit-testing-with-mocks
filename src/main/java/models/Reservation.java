@@ -8,7 +8,7 @@ public class Reservation {
     private DateTime endDate;
     private Room room;
     private User user;
-    private String identificator;
+    private String identifier;
 
     public Reservation() {}
 
@@ -67,11 +67,11 @@ public class Reservation {
         this.room = room;
     }
 
-    public String getIdentificator() {
-        return identificator;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setIdentificator(String identificator) {
-        this.identificator = identificator;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 }

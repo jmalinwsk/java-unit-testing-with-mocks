@@ -18,8 +18,8 @@ public class RoomService implements IRoomService {
 
     public boolean roomValidation(Room room) {
         return room != null &&
-                room.getNumberOfRoom() > 0 &&
-                room.getAmountOfPeople() > 0 &&
+                room.getRoomNumber() > 0 &&
+                room.getNumberOfGuests() > 0 &&
                 room.getHotel() != null;
     }
 

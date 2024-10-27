@@ -2,23 +2,23 @@ package models;
 
 public class Room {
     private Integer id;
-    private Integer numberOfRoom;
+    private Integer roomNumber;
     private Hotel hotel;
-    private Integer amountOfPeople;
+    private Integer numberOfGuests;
 
     public Room() {}
 
-    public Room(Integer id, Hotel hotel, Integer numberOfRoom, Integer amountOfPeople) {
+    public Room(Integer id, Hotel hotel, Integer roomNumber, Integer numberOfGuests) {
         this.id = id;
         this.hotel = hotel;
-        this.numberOfRoom = numberOfRoom;
-        this.amountOfPeople = amountOfPeople;
+        this.roomNumber = roomNumber;
+        this.numberOfGuests = numberOfGuests;
     }
 
-    public Room(Hotel hotel, Integer numberOfRoom, Integer amountOfPeople) {
+    public Room(Hotel hotel, Integer roomNumber, Integer numberOfGuests) {
         this.hotel = hotel;
-        this.numberOfRoom = numberOfRoom;
-        this.amountOfPeople = amountOfPeople;
+        this.roomNumber = roomNumber;
+        this.numberOfGuests = numberOfGuests;
     }
 
     public Integer getId() {
@@ -29,20 +29,20 @@ public class Room {
         this.id = id;
     }
 
-    public Integer getNumberOfRoom() {
-        return numberOfRoom;
+    public Integer getRoomNumber() {
+        return roomNumber;
     }
 
-    public void setNumberOfRoom(Integer numberOfRoom) {
-        this.numberOfRoom = numberOfRoom;
+    public void setRoomNumber(Integer roomNumber) {
+        this.roomNumber = roomNumber;
     }
 
-    public Integer getAmountOfPeople() {
-        return amountOfPeople;
+    public Integer getNumberOfGuests() {
+        return numberOfGuests;
     }
 
-    public void setAmountOfPeople(Integer amountOfPeople) {
-        this.amountOfPeople = amountOfPeople;
+    public void setNumberOfGuests(Integer numberOfGuests) {
+        this.numberOfGuests = numberOfGuests;
     }
 
     public Hotel getHotel() {

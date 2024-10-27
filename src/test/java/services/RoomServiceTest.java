@@ -61,7 +61,7 @@ class RoomServiceTest {
     @DisplayName("validation of room1" +
             "(returns false because of negative number of room1)")
     public void roomValidation3Test() {
-        room1.setNumberOfRoom(-1);
+        room1.setRoomNumber(-1);
         assertFalse(roomServiceMockito.roomValidation(room1));
     }
 
@@ -70,7 +70,7 @@ class RoomServiceTest {
             "(returns false because of negative number of amount of people" +
             "in hotel room1)")
     public void roomValidation4Test() {
-        room1.setAmountOfPeople(-1);
+        room1.setNumberOfGuests(-1);
         assertFalse(roomServiceMockito.roomValidation(room1));
     }
 
@@ -79,7 +79,7 @@ class RoomServiceTest {
             "(returns false because of 0 number of amount of people" +
             "in hotel room1)")
     public void roomValidation5Test() {
-        room1.setAmountOfPeople(0);
+        room1.setNumberOfGuests(0);
         assertFalse(roomServiceMockito.roomValidation(room1));
     }
 
@@ -101,7 +101,7 @@ class RoomServiceTest {
 
     @Test
     public void addThrowsWhenRoomDoesntPassValidation() {
-        room1.setAmountOfPeople(-5);
+        room1.setNumberOfGuests(-5);
 
         assertThrows(ValidationException.class,
                         () -> roomServiceMockito.add(room1));
@@ -180,7 +180,7 @@ class RoomServiceTest {
 
     @Test
     public void updateThrowsWhenRoomDoesntPassValidation() {
-        room1.setAmountOfPeople(-5);
+        room1.setNumberOfGuests(-5);
 
         assertThrows(ValidationException.class,
                         () -> roomServiceMockito.update(room1));
